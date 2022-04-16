@@ -1,3 +1,17 @@
+Problem definition:
+    - reconstructed img size n = w * h
+    - projections are sets of detector values for various angles, 
+      rotating around the object
+    - d : number of projection angles for each 
+    - k : number of detector values for each projections
+    - m = d*k : number of total measured detector values
+    - p = (p_i) : measured data elements for all projections,
+                  collapsed as a single vetor
+    - projection process maps the image x = (x_i) to p as: W*x = p
+    - W = (w_{i,j}) : projection matrix
+    - w_{i,j} : weight of the contribution of pixel i with respect to measurement j
+    - 
+
 Segmentation:
     - R = { ρ_1, ..., ρ_l } where l is the number of gray levels.
 
