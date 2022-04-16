@@ -10,20 +10,38 @@ Problem definition:
     - projection process maps the image x = (x_i) to p as: W*x = p
     - W = (w_{i,j}) : projection matrix
     - w_{i,j} : weight of the contribution of pixel i with respect to measurement j
-    - 
+    -  l > 0 : number of image gray levels
+    - R = { ρ_1, .., ρ_l} : set of grayscale levels
+
+    Problem: 
+    - find x in R^n so that W*x = p   
+
+
+# DART algorithm iterates between "continuous" and discrete update steps.
+# For the continuous step SART is used.
+SART Algorithm:
+    - the projection matrix W and vector p can be decomposed into d blocks of k rows
+    - W^t = (w_ij^t) : projection operation for a single angle 
+    - p^t : corresponding projection data to W^t
+    - for j = 1, ..n and t = 1, .., d:
+        - γ : sum of all i weights (0, ..., k )
+    - for i = 1, .., m and t = 1, .., d
+        - β : sum of all j weights ()
+    - S_d : set of all permutations of numbers 1, .., d
+    - σ : "random element" element of S_d (random element, because we sequence them permuted)
+    - one sweep through all projection angles (d update steps), is called a SART iteration.
 
 Segmentation:
-    - R = { ρ_1, ..., ρ_l } where l is the number of gray levels.
-
-    - we take thresholds τ  as mean value between ρ_i and ρ_i+1.
+    - we take thresholds τ as mean value between ρ_i and ρ_i+1.
+      also defined as r(x) = (r(x_1) ... r(x_n))^T
 
 Selection of free pixels:
-    - B = {1, ..., n} denotes the 'boundary pixels'
+    - B = {1, ..., n} denotes the 'boundary pixels' (n = size of img w*h)
     - N(i) denotes the neighborhood of pixel i (take 8-connected)
-    - pixel s_i^t is called a boundary pixel if s_j^t != s_i^t fir at least one j in N(i)
+    - pixel s_i^t is called a boundary pixel if s_j^t != s_i^t for at least one j in N(i)
     - U^t in {1, .., n} denotes the 'free pixels' subject to the DART update.
     - initialize U^t = B^t
     - 0 < p <= 1 is the 'fix probability'
-    - elements of non-boundary pixels are included in U^t with prob 0 < 1 - p <= 1.
+    - each element of the non-boundary pixels is included in U^t with prob 0 < 1 - p <= 1.
 
 ARM with fixed pixels:
