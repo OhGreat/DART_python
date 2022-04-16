@@ -1,0 +1,7 @@
+Segmentation:
+    - R = { ρ_1, ..., ρ_l } where l is the number of gray levels.
+
+    - we take thresholds τ  as mean value between ρ_i and ρ_i+1.
+
+Selection of free pixels:
+
