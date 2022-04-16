@@ -4,4 +4,12 @@ Segmentation:
     - we take thresholds τ  as mean value between ρ_i and ρ_i+1.
 
 Selection of free pixels:
+    - B = {1, ..., n} denotes the 'boundary pixels'
+    - N(i) denotes the neighborhood of pixel i (take 8-connected)
+    - pixel s_i^t is called a boundary pixel if s_j^t != s_i^t fir at least one j in N(i)
+    - U^t in {1, .., n} denotes the 'free pixels' subject to the DART update.
+    - initialize U^t = B^t
+    - 0 < p <= 1 is the 'fix probability'
+    - elements of non-boundary pixels are included in U^t with prob 0 < 1 - p <= 1.
 
+ARM with fixed pixels:
