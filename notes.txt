@@ -14,8 +14,7 @@ Problem definition:
     - R = { ρ_1, .., ρ_l} : set of grayscale levels
 
     Problem: 
-    - find x in R^n so that W*x = p   
-
+    - find x in R^n so that W*x = p
 
 # DART algorithm iterates between "continuous" and discrete update steps.
 # For the continuous step SART is used.
