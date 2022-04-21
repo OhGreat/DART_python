@@ -44,3 +44,10 @@ Selection of free pixels:
     - each element of the non-boundary pixels is included in U^t with prob 0 < 1 - p <= 1.
 
 ARM with fixed pixels:
+
+
+
+# PHANTOM CREATION RESOURCES:
+- Astra toolbox
+- TomoPhantom
+- foam phantoms
