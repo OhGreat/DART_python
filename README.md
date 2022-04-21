@@ -1,4 +1,4 @@
-# Discrete Algebric Reconstruction Technique (DART)
+# Discrete Algebric Reconstruction Technique (DART) - *currently in development*
 DART (Discrete Algebric Reconstruction Technique) is an iterative reconstruction algorithm for discrete tomography. The original publication<a href="#original_publication">[1]</a> was used as reference to create this library.
 
 This repository contains an implementation of the DART algorithm, together with a framework to generate phantoms and data, to test the algorithm itself.

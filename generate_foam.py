@@ -2,12 +2,12 @@ import foam_ct_phantom
 from PIL import Image
 
 # paths and filenames
-filename = "foam_dark_2"
+filename = "foam_deep"
 phantom_save_path = 'data/foam/phantoms/'+ filename + '.h5'
 volume_save_path = "data/foam/geometries/" + filename + '.h5'
 img_save_path = "data/foam/images/" + filename + '.png'
 
-n_spheres = 1000000  # set to a low value for faster computation time
+n_spheres = 100000  # set to a low value for faster computation time
 
 # extra control variables
 random_seed = 2  # to reproduce results
@@ -28,9 +28,7 @@ phantom.generate_volume(volume_save_path, geom)
 vol = foam_ct_phantom.load_volume(volume_save_path)
 
 # visualize and save image
-print(vol[0].max())
 img = Image.fromarray(vol[0]*255)
-print(vol[0].max())
 img = img.convert('L')
 if img_save:
     img.save(img_save_path)
