@@ -2,15 +2,17 @@ import foam_ct_phantom
 from PIL import Image
 
 # paths and filenames
-filename = "foam_deep"
+filename = "test_foam"
 phantom_save_path = 'data/foam/phantoms/'+ filename + '.h5'
 volume_save_path = "data/foam/geometries/" + filename + '.h5'
 img_save_path = "data/foam/images/" + filename + '.png'
 
-n_spheres = 100000  # set to a low value for faster computation time
+# set n_spheres to a low value for faster computation time
+# and less 'holes' in the phantom
+n_spheres = 1000  
 
 # extra control variables
-random_seed = 2  # to reproduce results
+random_seed = 69  # to 'reproduce' results, lol
 generate_foam = True
 display_img = False
 img_save = True
