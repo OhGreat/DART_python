@@ -9,7 +9,7 @@ What this repository consists of, is an implementation of the DART algorithm tog
 - `numpy`
 - `Pillow`
 - `foam_ct_phantom` : required to create phantoms, documentation is available <a href="https://github.com/dmpelt/foam_ct_phantom">here</a>.
-- `astra-toolbox` : required to create phantoms and projections, documentation is available <a href="https://www.astra-toolbox.com/">here</a>. Publications relevant to this library can be found in <a href="astra_1">[2]</a>, <a href="astra_2">[3]</a> and <a href="astra_3">[4]</a>.
+- `astra-toolbox` : required to create phantoms and projections, documentation is available <a href="https://www.astra-toolbox.com/">here</a>. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>.
 
 ## Usage
 To run DART, data *(in the form of phantoms)* and measurements *(in the form of projections and detector values)* need to be artificially constructed. 
