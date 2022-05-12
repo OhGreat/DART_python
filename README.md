@@ -33,17 +33,23 @@ python generate_foam.py
 
 ### Generating projections
 
-#### 2D
+#### From 2D phantoms
 To generate measurements in the form of 1D projections, the function `project_from_2D` has been created. You can import it and use it with the following commands:
 
 ```python
 from measurement_generator.projections import project_from_2D
-project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None)
+proj_id, projections = project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None)
 ```
 where:
 - `phantom_data`: is the phantom as a 2D numpy array.
-- `_projections
+- `n_projections`: is an integer value representing the number of projections as the number of angles to make measurements from.
+- `detector_spacing`: defines the size of the pixel.
+- `apply_noise`: boolean value that adds Poisson distributed noise to the image when set to True. False by default.
+- `save_dir`: string representing the directory to save png images that represent the measurements. Images won't be saved if this parameter is not set.
 
+The function will return `proj_id` and `projections`. The first is a reference to the astra toolkit object while the second one is a vector with the measurements itself.
+
+#### From 3D phantoms
 
 ### Running DART
 
