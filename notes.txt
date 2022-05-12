@@ -55,7 +55,7 @@ ARM with fixed pixels:
 
 
 - Questions:
-
-- how to sample projections? do we assume beam outside object or in center of object as in given example?
+- how to sample projections? 
+  do we assume beam outside object or in center of object as in given example?
+- 2D projections?
 - do we need to handle 3D or only 2D like in the paper?
-- the w_i,j parameters of the W matrix are treated as weights and are initialized randomly?
