@@ -4,8 +4,8 @@ from os import mkdir
 from os.path import isdir
 from PIL import Image
 
-
-def project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None):
+def project_from_2D(phantom_data, n_projections, detector_spacing, 
+                    apply_noise=False, save_dir=None):
         """ Creates projection for the given input data.
             
             Parameters:
