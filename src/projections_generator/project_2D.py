@@ -37,7 +37,7 @@ def project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=F
         projector = astra.create_projector('line', proj_geom, vol_geom)
         proj_id, projections = astra.creators.create_sino(phantom_id, projector)
 
-        # TODO: FIX, makes pixels values only 0 or 255
+        # TODO: FIX, makes pixels values only 0 or 255 when saving
         # Apply Poisson noise.
         if apply_noise:
             projections = np.random.poisson(projections * 10000) / 10000
@@ -46,12 +46,12 @@ def project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=F
 
         # Save projections if directory has been defined.
         if save_dir != None:
+            if save_dir[-1] != '/':
+                save_dir += '/'
             if not isdir(save_dir):
                 mkdir(save_dir)
-            projections = np.round(projections * (2**8- 1)).astype(np.uint8)
+            proj_for_img = np.round(projections * (2**8- 1)).astype(np.uint8)
             for i in range(n_projections):
-                if save_dir[-1] != '/':
-                    save_dir += '/'
-                    Image.fromarray(projections[i]).save(save_dir+f'proj_{i}.png')
+                Image.fromarray(proj_for_img[i]).save(save_dir+f'proj_{i}.png')
 
         return proj_id, projections
