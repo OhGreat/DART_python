@@ -31,9 +31,19 @@ python generate_foam.py
 
 *(a bash script to create phantoms and set arguments will be included in the future)*
 
-### Generating projection angles and detector values
+### Generating projections
 
-*to be added soon*
+#### 2D
+To generate measurements in the form of 1D projections, the function `project_from_2D` has been created. You can import it and use it with the following commands:
+
+```python
+from measurement_generator.projections import project_from_2D
+project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None)
+```
+where:
+- `phantom_data`: is the phantom as a 2D numpy array.
+- `_projections
+
 
 ### Running DART
 
