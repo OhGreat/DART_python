@@ -1,6 +1,11 @@
 # Discrete Algebric Reconstruction Technique (DART) - *currently in development*
-DART is an iterative reconstruction algorithm for discrete tomography. The original publication in<a href="#original_publication"> [1]</a> was used as reference to create this library.
+DART is an iterative reconstruction algorithm for discrete tomography. The original publication in <a href="#original_publication">[1]</a> was used as reference to create this library.
 What this repository consists of, is an implementation of the DART algorithm together with a framework to generate phantoms and measurements, to test the algorithm itself.
+
+## DART
+
+### ART reconstruction step
+The DART algorithm, implemented as in the original publication <a href="#original_publication"> [1]</a>, alternates between continuous and discrete reconstruction steps. For the continuous step, a variant of the SART algorithm is used. For the original publication of SART you can refer to <a href="#SART">[5]</a>.
 
 ## Prerequisites
 
@@ -57,11 +62,56 @@ The function will return `proj_id` and `projections`. The first is a reference t
 
 ### Running DART
 
-*to be added soon*
+**to be completed**
+All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions available in the DART library will therefore follow in this section.
+ 
+#### Instanciating DART
+In order to use the package and all of the methods, DART has to be imported and instanciated as follow:
+```python
+from reconstruction_algs.DART import DART
+dart_instance = DART()
+```
+### Segmentation
+The method `segment` can be used to segment an image, given the range of gray values:
+```python
+segmented_img = dart.segment(img, gray_levels)
+```
+where:
+- `img`: is the grayscale input phantom to segment as a 2D numpy matrix.
+- `gray_levels` : array of gray levels to compute the thresholds for the segmentation from.
+
+### Pixel neighborhood
+To calculate the indexes of neighbours of a specific pixel, you can use the method `pixel_neighborhood` as below:
+```python
+neighbours = dart.pixel_neighborhood(img, x, y)
+```
+where:
+- `img` : is as usual the phantom in the form of 2D numpy matrix.
+- `x,y`: are the coordinates of the pixel in 
+
+The method returns a 2D array containing arrays of the x,y coordinates of the neighbours.
+
+### Boundary pixels
+To calculate the boundary pixels of the phantom image, the method `boundary_pixels` takes as input the phantom *as a numpy array*, and calculates the boundary pixels with the help of the `pixel_neighborhood` method described above. You can use it as follows:
+```python
+b_pixels = dart.boundary_pixels(img):
+```
+where, `b_pixels` is the output given as a 2D binary mask of the image, where True values represent that the given pixel is a boundary pixel.
+
+### Non-boundary free pixels
+To calculate the non-boundary free pixels, the following method is available:
+```python
+non_b_pixels = dart.non_boundary_free_pixels(boundaries, p)
+```
+where:
+- `boundaries` : is the boundaries binary mask as a binary 2D numpy array, as defined in the output of the method `boundary_pixels`.
+- `p` : defines the probability for a pixel to not be sampled as a non-boudary free pixel.
+
+The output `non-b_pixels` is yet again a binary 2D matrix, where the Tru values represent if a given pixel was sampled as a free pixel.
 
 ## Examples and Results
 
-*to be added soon*
+**to be added**
 
 ## References
 
@@ -88,3 +138,9 @@ W. van Aarle, W. J. Palenstijn, J. De Beenhouwer, T. Altantzis, S. Bals, K. J. B
 [4].<br/>
 W. J. Palenstijn, K. J. Batenburg, and J. Sijbers, “Performance improvements for iterative electron tomography reconstruction using graphics processing units (GPUs)”, Journal of Structural Biology, vol. 176, issue 2, pp. 250-253, 2011, <a href="http://dx.doi.org/10.1016/j.jsb.2011.07.017">http://dx.doi.org/10.1016/j.jsb.2011.07.017</a>
 </div>
+
+<br/>
+<div id="SART">
+[5].<br/>
+Yu, Hengyong & Wang, Ge. (2010). SART-Type Image Reconstruction from a Limited Number of Projections with the Sparsity Constraint. International journal of biomedical imaging. 2010. 934847. 10.1155/2010/934847. <a href="https://www.hindawi.com/journals/ijbi/2010/934847/">https://www.hindawi.com/journals/ijbi/2010/934847/</a>
+ </div>
