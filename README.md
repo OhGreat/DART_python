@@ -23,13 +23,17 @@ Usage of the framework for each of this tasks is described in detail in the foll
 ### Generating phantoms
 
 <b>Foam phantoms</b><br/>
-To generate foam like phantoms the library `foam_ct_phantom` was used. The file `generate_foam.py` can be used to create similar phantoms to the ones used in our experiments by running the command:
-
+To generate foam like phantoms the library `foam_ct_phantom` was used. The main function to create foam like phantoms is `create_foam` in the `phantoms.foam` package. To import it and use it run the following commands:
+```python
+from phantoms.foam import create_foam
+create_foam(filename, n_sheres, seed)
 ```
-python generate_foam.py
-```
+where the function parameters are the following:
+- `filename`: name of the file to save. To be passed as a string.
+- `n_spheres`: iterations of the algorithm. The more iterations, the more 'holes' the foam phantom will have. Default value is 1000. 
+- `seed`: integer value that sets the random generated values, used to reproduce results.
 
-*(a bash script to create phantoms and set arguments will be included in the future)*
+The function does not return any value, you can proceed directly to loading the generated phantom with the astra toolkit.
 
 ### Generating projections
 
@@ -37,7 +41,7 @@ python generate_foam.py
 To generate measurements in the form of 1D projections, the function `project_from_2D` has been created. You can import it and use it with the following commands:
 
 ```python
-from measurement_generator.projections import project_from_2D
+from measurements.projections import project_from_2D
 proj_id, projections = project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None)
 ```
 where:
