@@ -2,12 +2,40 @@ import numpy as np
 import astra
 
 class DART():
-    """ gray_levels: R = {p_1, ..,  p_l}
-    """
 
-    def __init__(self, out_vol_shape):
-        # create empty vessel
-        self.vol_geom = astra.creators.create_vol_geom(out_vol_shape)
+    def __init__(self):
+        pass
+
+    def __call__(self, iters, gray_levels, p, 
+                vol_shape, projector_id, sino_id, SART_iter):
+        """ TODO: add documentation
+        """
+        # create volume geometry
+        vol_geom = astra.creators.create_vol_geom(vol_shape)
+        # initialize current reconstruction
+        _, curr_reconstr = self.SART(vol_geom,projector_id, 
+                                    sino_id, 
+                                    iters=SART_iter)
+
+        for i in range(iters):
+            # segment current reconstructed image
+            segmented_img = self.segment(curr_reconstr, gray_levels)
+            # calculate boundary pixels
+            boundary_pixels = self.boundary_pixels(segmented_img)
+            # calculate free pixels
+            free_pixels = self.free_pixels(vol_shape,p)
+            # mask used to set the pixels from the new reconstruction
+            non_fixed_pixels = np.logical_or(boundary_pixels,free_pixels)
+            # calculate new SART reconstruction
+            _, new_reconstr = self.SART(vol_geom, projector_id, 
+                                        sino_id, iters=SART_iter)
+            # take indexes of non fixed pixels
+            free_pixels_idx = np.where(non_fixed_pixels)
+            # update the current free pixels
+            curr_reconstr[free_pixels_idx[0], 
+                        free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
+                                                            free_pixels_idx[1]]
+        return curr_reconstr
 
     def segment(self, img, gray_levels):
         """ Segments the input image to obtain an image with
@@ -24,7 +52,7 @@ class DART():
         return img
 
     def pixel_neighborhood(self, img, x, y):
-        """ Returns an array containing all the neigh
+        """ Returns an array containing all the neighbours of the given pixel
         """
         # calculate all possible neighbours
         out =[]
@@ -60,63 +88,46 @@ class DART():
                     bool_mask[x,y] = 1
         return bool_mask
 
-
-    def non_boundary_free_pixels(self, boundaries, p):
-        """ Computes the non boundary free pixels of the image.
-            Returns an image mask where non boundary free pixels 
-            have value 1 and the rest all 0s.
+    def free_pixels(self, img_shape, p):
+        """ Computes the free pixels of the image.
             
             Parameters:
-                - boundaries: binary image mask as a numpy 
-                        array that contains the boundary 
-                        free pixels to exclude from the free pixels.
+                - img_shape: shape of the image for which 
+                    to calculate the free pixels 
 
                 - p: probability that a pixel is not sampled 
                     as a non boundary free pixel
         """
-        # we calculate the mask of possible free pixels 
-        # and collapse it in 1 dimension
-        possible_pixels = np.logical_not(boundaries).reshape(-1)
-        # get indexes of all available pixels
-        idxes = np.hstack(np.nonzero(possible_pixels))
-
-        # we sample randomly with probability 1-p the free pixels
-        # by assigning a binary variable to each available idx.
         c = [0,1]
         probs = [p, 1-p]
-        choices = np.random.choice(a=c, size=idxes.shape, p=probs)
+        free_pixels = np.random.choice(a=c, 
+                                    size=img_shape, 
+                                    p=probs).astype(np.uint8)
+        return free_pixels
 
-        # we create a new output mask of the size of the image
-        # and substitute ones in the indexes from 'idxes' where 
-        # the boolean flags are True
-        free_out = np.full(fill_value=0,
-                            shape=boundaries.shape[0]*boundaries.shape[1],
-                            dtype=np.uint8)
-        for i in range(len(choices)):
-            if choices[i] == 1:
-                free_out[idxes[i]] = 1
-
-        free_out = free_out.reshape(boundaries.shape)
-        return free_out
-
-    def SART(self, projector_id, sino_id, iters=200):
+    def SART(self, vol_geom, projector_id, sino_id, iters=200):
         """ Simultaneous Algebraic Reconstruction Technique (SART) with
             randomized scheme. Used from DART as the continious update step.
         """
         # create empty reconstruction
-        reconstruction_id = astra.data2d.create('-vol', self.vol_geom, data=0)
-
+        reconstruction_id = astra.data2d.create('-vol', vol_geom, data=0)
         # define SART configuration parameters
         alg_cfg = astra.astra_dict('SART')
         alg_cfg['ProjectorId'] = projector_id
         alg_cfg['ProjectionDataId'] = sino_id
         alg_cfg['ReconstructionDataId'] = reconstruction_id
+        alg_cfg['MinConstraint'] = 0
+        alg_cfg['MaxConstraint'] = 255
+        alg_cfg['ProjectionOrder'] = 'random'  # is set as default
+
         # define algorithm
         algorithm_id = astra.algorithm.create(alg_cfg)
         # run the algirithm
         astra.algorithm.run(algorithm_id, iters)
-
         # create reconstruction data
         reconstruction = astra.data2d.get(reconstruction_id)
+
+        reconstruction[reconstruction > 255] = 255
+        reconstruction[reconstruction < 0] = 0
 
         return reconstruction_id, reconstruction
