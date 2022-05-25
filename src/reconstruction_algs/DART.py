@@ -1,11 +1,13 @@
 import numpy as np
+import astra
 
 class DART():
     """ gray_levels: R = {p_1, ..,  p_l}
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, out_vol_shape):
+        # create empty vessel
+        self.vol_geom = astra.creators.create_vol_geom(out_vol_shape)
 
     def segment(self, img, gray_levels):
         """ Segments the input image to obtain an image with
@@ -72,7 +74,6 @@ class DART():
                 - p: probability that a pixel is not sampled 
                     as a non boundary free pixel
         """
-
         # we calculate the mask of possible free pixels 
         # and collapse it in 1 dimension
         possible_pixels = np.logical_not(boundaries).reshape(-1)
@@ -98,13 +99,24 @@ class DART():
         free_out = free_out.reshape(boundaries.shape)
         return free_out
 
-    def SART(self, W, x):
+    def SART(self, projector_id, sino_id, iters=200):
         """ Simultaneous Algebraic Reconstruction Technique (SART) with
             randomized scheme. Used from DART as the continious update step.
-            
-            Params:
-                - x : reconstructed image 
-                - W : projection matrix. Maps the image x to 
-                      the vector p of measured data
         """
-        pass
+        # create empty reconstruction
+        reconstruction_id = astra.data2d.create('-vol', self.vol_geom, data=0)
+
+        # define SART configuration parameters
+        alg_cfg = astra.astra_dict('SART')
+        alg_cfg['ProjectorId'] = projector_id
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = reconstruction_id
+        # define algorithm
+        algorithm_id = astra.algorithm.create(alg_cfg)
+        # run the algirithm
+        astra.algorithm.run(algorithm_id, iters)
+
+        # create reconstruction data
+        reconstruction = astra.data2d.get(reconstruction_id)
+
+        return reconstruction_id, reconstruction

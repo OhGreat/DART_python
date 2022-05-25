@@ -4,7 +4,7 @@ from os import mkdir
 from os.path import isdir
 from PIL import Image
 
-def project_from_2D(phantom_data, n_projections, detector_spacing, 
+def project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, 
                     apply_noise=False, save_dir=None):
         """ Creates projection for the given input data.
             
@@ -20,22 +20,19 @@ def project_from_2D(phantom_data, n_projections, detector_spacing,
                     of projections, when defined. To be passed as a string.
         """
 
-        img_width, img_height = phantom_data.shape
+        img_width, img_height = vol_geom['GridRowCount'], vol_geom['GridColCount']
         # define the number of detectors 
         # as the number of rows in the image
         n_detectors = img_width
         # create angles for measurements
-        angles = np.linspace(0, 2*np.pi, n_projections)
+        angles = np.linspace(0, np.pi, n_projections)
 
-        # create astra phantom
-        vol_geom = astra.creators.create_vol_geom([img_width,img_height])
-        phantom_id = astra.data2d.create('-vol', vol_geom, data=phantom_data)
 
         # create projections
         proj_geom = astra.create_proj_geom('parallel', detector_spacing, 
                                             n_detectors, angles)
-        projector = astra.create_projector('line', proj_geom, vol_geom)
-        proj_id, projections = astra.creators.create_sino(phantom_id, projector)
+        proj_id = astra.create_projector('linear', proj_geom, vol_geom)
+        sino_id, sinogram = astra.creators.create_sino(phantom_id, proj_id)
 
         # TODO: FIX, makes pixels values only 0 or 255 when saving
         # Apply Poisson noise.
@@ -54,4 +51,4 @@ def project_from_2D(phantom_data, n_projections, detector_spacing,
             for i in range(n_projections):
                 Image.fromarray(proj_for_img[i]).save(save_dir+f'proj_{i}.png')
 
-        return proj_id, projections
+        return proj_id, sino_id, sinogram
