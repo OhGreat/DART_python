@@ -5,7 +5,7 @@ What this repository consists of, is an implementation of the DART algorithm tog
 ## DART
 
 ### ART reconstruction step
-The DART algorithm, implemented as in the original publication <a href="#original_publication"> [1]</a>, alternates between continuous and discrete reconstruction steps. For the continuous step, a variant of the SART algorithm is used. For the original publication of SART you can refer to <a href="#SART">[5]</a>.
+The DART algorithm, implemented as in the original publication <a href="#original_publication"> [1]</a>, alternates between continuous and discrete reconstruction steps. For the continuous step, many reconstruction algorithms were implemented with **astra-toolbox**. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>. For the original publication of SART, which is the main reconstruction algorithm presented in the original DART publication, you can refer to <a href="#SART">[5]</a>.
 
 ## Prerequisites
 
@@ -13,8 +13,7 @@ The DART algorithm, implemented as in the original publication <a href="#origina
 
 - `numpy`
 - `Pillow`
-- `foam_ct_phantom` : required to create phantoms, documentation is available <a href="https://github.com/dmpelt/foam_ct_phantom">here</a>.
-- `astra-toolbox` : required to create phantoms and projections, documentation is available <a href="https://www.astra-toolbox.com/">here</a>. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>.
+- `astra-toolbox` : required to create phantoms and projections, documentation is available <a href="https://www.astra-toolbox.com/">here</a>.
 
 ## Usage
 To run DART, data *(in the form of phantoms)* and measurements *(in the form of projections and detector values)* need to be artificially constructed. 
@@ -27,18 +26,7 @@ Usage of the framework for each of this tasks is described in detail in the foll
 
 ### Generating phantoms
 
-<b>Foam phantoms</b><br/>
-To generate foam like phantoms the library `foam_ct_phantom` was used. The main function to create foam like phantoms is `create_foam` in the `phantoms.foam` package. To import it and use it run the following commands:
-```python
-from phantoms.foam import create_foam
-create_foam(filename, n_sheres, seed)
-```
-where the function parameters are the following:
-- `filename`: name of the file to save. To be passed as a string.
-- `n_spheres`: iterations of the algorithm. The more iterations, the more 'holes' the foam phantom will have. Default value is 1000. 
-- `seed`: integer value that sets the random generated values, used to reproduce results.
-
-The function does not return any value, you can proceed directly to loading the generated phantom with the astra toolkit.
+*add phantom generation scripts*
 
 ### Generating projections
 
@@ -47,26 +35,26 @@ To generate measurements in the form of 1D projections, the function `project_fr
 
 ```python
 from measurements.projections import project_from_2D
-proj_id, projections = project_from_2D(phantom_data, n_projections, detector_spacing, apply_noise=False, save_dir=None)
+proj_id, sino_id, sinogram = project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, apply_noise=False, save_dir=None, use_gpu=False)
 ```
 where:
-- `phantom_data`: is the phantom as a 2D numpy array.
+- `phantom_id`: Phantom as astra-toolbox object.
+- `vol_geom`: geometry of the output image. Used to define the number of detectors as the first dimension of the vol_geom.
 - `n_projections`: is an integer value representing the number of projections as the number of angles to make measurements from.
 - `detector_spacing`: defines the size of the pixel.
 - `apply_noise`: boolean value that adds Poisson distributed noise to the image when set to True. False by default.
 - `save_dir`: string representing the directory to save png images that represent the measurements. Images won't be saved if this parameter is not set.
+- `use_gpu`: creates a projector that can use GPU  
 
-The function will return `proj_id` and `projections`. The first is a reference to the astra toolkit object while the second one is a vector with the measurements itself.
+The function will return `proj_id`, `sino_id` and `sinogram`. The first is a reference to the astra toolkit projector object, the second is a reference to the astra toolkit sinogram object and the former is the sinograms' actual measurements.
 
 #### From 3D phantoms
 
 ### Running DART
-
-**to be completed**
-All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions available in the DART library will therefore follow in this section.
+All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions available in the library will follow in this section.
  
-#### Instanciating DART
-In order to use the package and all of the methods, DART has to be imported and instanciated as follow:
+#### DART Instance
+DART can be imported and initialized in the following way:
 ```python
 from reconstruction_algs.DART import DART
 dart_instance = DART()
@@ -107,7 +95,24 @@ where:
 - `boundaries` : is the boundaries binary mask as a binary 2D numpy array, as defined in the output of the method `boundary_pixels`.
 - `p` : defines the probability for a pixel to not be sampled as a non-boudary free pixel.
 
-The output `non-b_pixels` is yet again a binary 2D matrix, where the Tru values represent if a given pixel was sampled as a free pixel.
+The output `non_b_pixels` is a binary 2D matrix, where the True values represent if a given pixel was sampled as a free pixel.
+
+### Algebraic Reconstruction
+For the continous reconstruction step, various algorithms have been implemented. Specifically, **SART**, **SIRT**, **ART** and **FBP** are available for experimentation.
+
+The following example demostrates how to use SART:
+```
+sart_res_id, sart_res = DART().SART(vol_geom, projector_id, sino_id, iters, use_gpu=True)
+```
+
+where:
+- `vol_geom`: represents the volume geometry for the output.
+- `projector_id`: specifies the projector to use for the measurements.
+- `sino_id`: is the sinogram id of the projections.
+- `iters`: number of dart iterations to run.
+- `use_gpu`: set to True to run Astra on GPU. You also need to use a gpu capable projector.
+
+The algorithm will return `sart_res_id` which is the astra-toolbox reference to the reconstructed phantom, and `sart_res`, a numpy array with the actual values of the reconstructed phantom.  
 
 ## Examples and Results
 
@@ -116,7 +121,8 @@ The output `non-b_pixels` is yet again a binary 2D matrix, where the Tru values 
 ## TODO
 
 - add smoothing as last step of dart algorithm
-- 
+- add sampling intermediate steps of the algorithm
+- add getting error for plots
 
 ## References
 
