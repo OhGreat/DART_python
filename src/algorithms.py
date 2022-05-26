@@ -7,7 +7,8 @@ class DART():
         pass
 
     def __call__(self, iters, gray_levels, p, 
-                vol_shape, projector_id, sino_id, SART_iter):
+                vol_shape, projector_id, sino_id, 
+                SART_iter, use_gpu=False):
         """ TODO: add documentation
         """
         # create volume geometry
@@ -28,13 +29,15 @@ class DART():
             non_fixed_pixels = np.logical_or(boundary_pixels,free_pixels)
             # calculate new SART reconstruction
             _, new_reconstr = self.SART(vol_geom, projector_id, 
-                                        sino_id, iters=SART_iter)
+                                        sino_id, iters=SART_iter,
+                                        use_gpu=use_gpu)
             # take indexes of non fixed pixels
             free_pixels_idx = np.where(non_fixed_pixels)
             # update the current free pixels
             curr_reconstr[free_pixels_idx[0], 
                         free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
                                                             free_pixels_idx[1]]
+            # TODO: add smoothing operation
         return curr_reconstr
 
     def segment(self, img, gray_levels):
@@ -105,20 +108,23 @@ class DART():
                                     p=probs).astype(np.uint8)
         return free_pixels
 
-    def SART(self, vol_geom, projector_id, sino_id, iters=200):
+    def SART(self, vol_geom, projector_id, sino_id, iters=200, use_gpu=False):
         """ Simultaneous Algebraic Reconstruction Technique (SART) with
             randomized scheme. Used from DART as the continious update step.
         """
         # create empty reconstruction
         reconstruction_id = astra.data2d.create('-vol', vol_geom, data=0)
         # define SART configuration parameters
-        alg_cfg = astra.astra_dict('SART')
+        if use_gpu:
+            alg_cfg = astra.astra_dict('SART_CUDA')
+        else:
+            alg_cfg = astra.astra_dict('SART')
         alg_cfg['ProjectorId'] = projector_id
         alg_cfg['ProjectionDataId'] = sino_id
         alg_cfg['ReconstructionDataId'] = reconstruction_id
-        alg_cfg['MinConstraint'] = 0
-        alg_cfg['MaxConstraint'] = 255
-        alg_cfg['ProjectionOrder'] = 'random'  # is set as default
+        #alg_cfg['MinConstraint'] = 0
+        #alg_cfg['MaxConstraint'] = 255
+        #alg_cfg['ProjectionOrder'] = 'random'  # is set as default
 
         # define algorithm
         algorithm_id = astra.algorithm.create(alg_cfg)

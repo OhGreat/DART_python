@@ -5,7 +5,7 @@ from os.path import isdir
 from PIL import Image
 
 def project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, 
-                    apply_noise=False, save_dir=None):
+                    apply_noise=False, save_dir=None, use_gpu=False):
         """ Creates projection for the given input data.
             
             Parameters:
@@ -28,10 +28,14 @@ def project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing,
         angles = np.linspace(0, np.pi, n_projections)
 
 
-        # create projections
+        # create projection geometry
         proj_geom = astra.create_proj_geom('parallel', detector_spacing, 
                                             n_detectors, angles)
-        proj_id = astra.create_projector('linear', proj_geom, vol_geom)
+        # choose projector
+        if use_gpu:
+            proj_id = astra.create_projector('cuda', proj_geom, vol_geom)
+        else:
+            proj_id = astra.create_projector('linear', proj_geom, vol_geom)
         sino_id, sinogram = astra.creators.create_sino(phantom_id, proj_id)
 
         # TODO: FIX, makes pixels values only 0 or 255 when saving

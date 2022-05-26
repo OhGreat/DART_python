@@ -113,6 +113,11 @@ The output `non-b_pixels` is yet again a binary 2D matrix, where the Tru values 
 
 **to be added**
 
+## TODO
+
+- add smoothing as last step of dart algorithm
+- 
+
 ## References
 
 <div id="original_publication">
