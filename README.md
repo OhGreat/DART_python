@@ -129,7 +129,7 @@ Output:
 For the continous reconstruction step, various algorithms have been implemented. Specifically, **SART**, **SIRT**, **ART** and **FBP** are available for experimentation.
 
 The following example demostrates how to use SART:
-```
+```python
 sart_res_id, sart_res = DART().SART(vol_geom, projector_id, sino_id, iters, use_gpu=True)
 ```
 

@@ -19,7 +19,8 @@ def create_image(x,y):
     xv, yv = np.meshgrid(_,_)
     return image, xv, yv
 
-def create_semilunars(img_size=512, gray_values=[255, 200, 150], n=1, overlap=False, seed=None, img_name=None):
+def create_semilunars(img_size=512, gray_values=[255, 200, 150], n=1, 
+                        overlap=False, seed=None, img_name=None):
     """ Create lunar like phantoms.
 
         Input:
