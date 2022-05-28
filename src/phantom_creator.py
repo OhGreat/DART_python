@@ -40,29 +40,28 @@ def create_semilunars(img_size=512, gray_values=[80,120,180], n=1,
         Output:
             returns a list of phantoms. (Phantoms as numpy arrays)
     """
-
+    # control correct image size
     if img_size == 512:
         x, y = 164, 164
     elif img_size == 256:
         x, y = 80, 80
     else:
         exit("img_size can only be set to 512 or 256")
-
+    # control seed
     if seed != None:
         np.random.seed(seed)
-
     # define save paths
     if img_name != None:
         if not exists('data/'):
             makedirs('data/')
-    
-    circles = []
+    # create phantoms
+    senilunars = []
     for i in range(n):
-        
         image, xv, yv = create_image(x,y)
+        # define noise for randomization
         mu, sigma = 0 , 0.1
         noise =  np.abs(np.random.normal(mu, sigma, 2))
-        
+        # define shapes in image
         image[xv**2 + yv**2 >0.6] = 0
         image[xv**2 + yv**2 <0.49] = gray_values[1]
         if overlap == True:
@@ -75,12 +74,11 @@ def create_semilunars(img_size=512, gray_values=[80,120,180], n=1,
             image[(xv-0.1+noise[0])**2 + (yv-0.1+noise[0])**2 <0.19] = gray_values[2]
             image[(xv-0.1+noise[0])**2 + (yv-0.1+noise[0])**2 <0.11] = gray_values[1]
             image[(xv-0.2+noise[0])**2 + (yv-0.2+noise[0])**2 <0.02] = gray_values[2]
-            
-        circles.append(image.astype(np.uint8))
+        senilunars.append(image.astype(np.uint8))
+        # save image
         if img_name != None:
             Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png")
-        
-    return circles
+    return senilunars
 
 
 
@@ -106,56 +104,47 @@ def create_alien(img_size=512, gray_values=[40,80,100], n=1,
         Output:
             returns a list of phantoms. (Phantoms as numpy arrays)
     """
-
+    # control image size
     if img_size == 512:
         x, y = 164, 164
     elif img_size == 256:
         x, y = 80, 80
     else:
         exit("img_size can only be set to 512 or 256")
-
+    # seed control
     if seed != None:
         np.random.seed(seed)
-
     # define save paths
     if img_name != None:
         if not exists('data/'):
             makedirs('data/')
-    
+    # create alien phantoms
     aliens = []
     for i in range(n):
-        
         image, xv, yv = create_image(x,y)
+        # create noise for randomization
         mu, sigma = 0 , 0.05
         noise =  np.abs(np.random.normal(mu, sigma, 2))
+        # create phantom
         image[(xv-0.01)**2/0.5+(yv+0.01)**2>0.5] = 0
         image[(xv-0.01)**2/0.5+(yv+0.01)**2<0.48] = gray_values[2]
-
         if overlap == True:
             image[(xv+0.3-noise[0])**2/0.2+(yv+0.01-noise[0])**2<0.05] = gray_values[1]
             image[(xv+0.3-noise[1])**2/0.2+(yv+0.1-noise[1])**2<0.01] = gray_values[0]
             image[(xv-0.3+noise[0])**2/0.2+(yv+0.01+noise[0])**2<0.05] = gray_values[1]
             image[(xv-0.3+noise[1])**2/0.2+(yv+0.1+noise[1])**2<0.01] = gray_values[0]
             image[(xv-0.01-noise[0])**2+(yv-0.6+noise[0])**2/0.025<0.02] = gray_values[0]
-            
         else: 
             image[(xv+0.3-noise[0])**2/0.2+(yv+0.01-noise[0])**2<0.05] = gray_values[1]
             image[(xv+0.3-noise[0])**2/0.2+(yv+0.1-noise[0])**2<0.01] = gray_values[0]
             image[(xv-0.3+noise[0])**2/0.2+(yv+0.01-noise[0])**2<0.05] = gray_values[1]
             image[(xv-0.3+noise[0])**2/0.2+(yv+0.1-noise[0])**2<0.01] = gray_values[0]
-            image[(xv-0.01-noise[0])**2+(yv-0.6+noise[0])**2/0.025<0.02] = gray_values[0]
-            
-            
+            image[(xv-0.01-noise[0])**2+(yv-0.6+noise[0])**2/0.025<0.02] = gray_values[0] 
         aliens.append(image)
-        
-  
-
+        # save image
         if img_name != None:
-            Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png")
-        
+            Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png") 
     return aliens
-
-    
 
 def create_paws(img_size=512, gray_values=[50,110,120], n=1,
                                  seed=None, img_name=None):
@@ -178,35 +167,32 @@ def create_paws(img_size=512, gray_values=[50,110,120], n=1,
         Output:
             returns a list of phantoms. (Phantoms as numpy arrays)
     """
+    # img size control
     if img_size == 512:
         x, y = 164, 164
     elif img_size == 256:
         x, y = 80, 80
     else:
         exit("img_size can only be set to 512 or 256")
-
+    # control seed
     if seed != None:
         np.random.seed(seed)
-
     # define save paths
     if img_name != None:
         if not exists('data/'):
             makedirs('data/')
-    
     paws = []
     for i in range(n):
-
         image, xv, yv = create_image(x,y)
         thresh = np.random.choice(range(11),3)
         shift_x = np.random.choice(range(50))
         shift_y = np.random.choice(range(3))
-
+        # noise for randomization
         mu, sigma = 0 , 0.1
         noise =  np.abs(np.random.normal(mu, sigma, 2))
-
+        # create images
         image[xv**2 + yv**2 >0.1] = 0
         image[xv**2 + yv**2 <0.09] = 110
-
         if img_size==256:
             image[25:231,30:40] = 120
             image[25:231, 216:226] = 120
@@ -219,21 +205,15 @@ def create_paws(img_size=512, gray_values=[50,110,120], n=1,
             image[50:70, 80:432] = 120
             image[442:462, 80:432] = 120
             image[360:420+shift_y,100:160+shift_x] = 120
-
         image[(xv-0.5)**2/0.2+(yv+0.3-noise[0])**2<0.05] = 110
-
         if thresh[0] > 5: 
             image[(xv-0.006)**2/0.4+(yv+0.18)**2/0.7<0.01] = gray_values[0]
         if thresh[1] <4: 
             image[(xv+0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = gray_values[0]
-         
         image[(xv-0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = gray_values[0]
         image[(xv-0.01)**2/0.7+(yv-0.1)**2/0.7<0.02] = gray_values[0]
-        
         paws.append(image)
-  
-
+        # save image
         if img_name != None:
-            Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png")
-        
+            Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png") 
     return paws

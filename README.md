@@ -65,7 +65,7 @@ Output:
 To generate measurements in the form of 1D projections, the function `project_from_2D` has been created. You can import it and use it with the following commands:
 
 ```python
-from measurements.projections import project_from_2D
+from projections import project_from_2D
 proj_id, sino_id, sinogram = project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, apply_noise=False, save_dir=None, use_gpu=False)
 ```
 Parameters:
@@ -90,7 +90,7 @@ All the steps required to run the DART algorithm have been broken down and can b
 #### DART algorithm
 DART can be imported and used in the following way:
 ```python
-from reconstruction_algs.DART import DART
+from reconstruction_algs import DART
 dart = DART()
 dart_res = dart(iters=50,
             gray_levels=[0,150,255],p=0.85,
