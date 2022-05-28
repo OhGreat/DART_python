@@ -75,7 +75,7 @@ def main():
                     vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
                     SART_iter=200, use_gpu=True)
-        proj_errors_dart.append(dart_res)
+        proj_errors_dart.append(np.abs(phantom - dart_res).mean())
 
     np.save(out_dir_proj+"SART", proj_errors_sart)
     np.save(out_dir_proj+"SIRT", proj_errors_sirt)
@@ -125,7 +125,7 @@ def main():
                     vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
                     SART_iter=200, use_gpu=True)
-        ang_errors_dart.append(dart_res)
+        ang_errors_dart.append(np.abs(phantom - dart_res).mean())
 
 
     np.save(out_dir_angles+"SART", ang_errors_sart)
