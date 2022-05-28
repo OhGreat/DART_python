@@ -106,6 +106,8 @@ Parameters:
 - `projector_id`: reference to the astra toolbox projector used to make the projections. (Can be created with the **project_from_2D** fucntion described above)
 - `sino_id`: reference to the astra toolbox sinogram. (Can also be created with the **project_from_2D** fucntion described above)
 
+Output:
+- returns the generated image in the form of numpy array.
 
 ### Segmentation
 The method `segment` can be used to segment an image, given the range of gray values:
