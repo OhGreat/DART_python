@@ -1,5 +1,8 @@
 import numpy as np
 import astra
+from scipy.ndimage import gaussian_filter
+from os import listdir, makedirs
+from os.path import exists
 
 class DART():
 
@@ -8,9 +11,18 @@ class DART():
 
     def __call__(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
-                SART_iter, use_gpu=False):
+                SART_iter, use_gpu=False,
+                stats_dir=None, original_phantom=None):
         """ TODO: add documentation
         """
+        # check directory exists
+        if stats_dir != None:
+            if original_phantom == None:
+                exit("original_phantom is required when stats_dir is defined" )
+            if not exists(stats_dir):
+                makedirs(stats_dir)
+            
+
         # create volume geometry
         vol_geom = astra.creators.create_vol_geom(vol_shape)
         # initialize current reconstruction
@@ -37,7 +49,11 @@ class DART():
             curr_reconstr[free_pixels_idx[0], 
                         free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
                                                             free_pixels_idx[1]]
-            # TODO: add smoothing operation
+            # smoothing operation
+            smooth_rec = gaussian_filter(curr_reconstr, sigma=1)
+            curr_reconstr[free_pixels_idx[0], 
+                        free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
+                                                        free_pixels_idx[1]]
         return curr_reconstr
 
     def segment(self, img, gray_levels):
@@ -47,7 +63,7 @@ class DART():
         self.gray_levels = gray_levels
         # defien thresholds for gray levels with start and end values
         self.thresholds = [0] +[(gray_levels[i]+gray_levels[i+1])/2 
-                            for i in range(len(gray_levels)-1) ] + [256]
+                            for i in range(len(gray_levels)-1) ] + [255]
         # Compute segmentation
         for thresh_idx in range(len(self.thresholds)-1):
             cond = (img >= self.thresholds[thresh_idx]) * (img < self.thresholds[thresh_idx+1])
@@ -58,19 +74,14 @@ class DART():
         """ Returns an array containing all the neighbours of the given pixel
         """
         # calculate all possible neighbours
-        out =[]
-        for i in range(x-1,x+2):
-            curr_x = np.full(fill_value=i, shape=3)
-            curr_y = np.arange(y-1,y+2)
-            out.append(np.vstack((curr_x,curr_y)).T)
-        out = np.array(out)
-    
+        # related to the x,y coordinates
         max_x, max_y = img.shape
-        # remove neighbors with invalid indexes
-        out = out[out[..., 0] > 0]
-        out = out[out[..., 0] < max_x]
-        out = out[out[..., 1] < max_y]
-        return out
+        neighbours = [(i,j) 
+                        for i in range(x-1, x+2) 
+                            if i > -1 and i < max_x
+                                for j in range(y-1, y+2) 
+                                    if j > -1 and j < max_y ]
+        return neighbours
 
     def boundary_pixels(self, img):
         """ Computes the boundary pixels of the image.
@@ -85,9 +96,12 @@ class DART():
         for x in range(img.shape[0]):
             for y in range(img.shape[1]):
                 pixel = img[x,y]
-                neighborhood_indexes = self.pixel_neighborhood(img,x,y)
-                neighboors = img[tuple(neighborhood_indexes.T)]
-                if np.any(neighboors != pixel):
+                # get curr pixel neighbours indexes
+                neigh_idxes = self.pixel_neighborhood(img,x,y)
+                # get actual neighbours values
+                neighbours = [img[i] for i in neigh_idxes]
+                # update pixel value
+                if np.any(neighbours != pixel):
                     bool_mask[x,y] = 1
         return bool_mask
 
@@ -122,6 +136,7 @@ class DART():
         alg_cfg['ProjectorId'] = projector_id
         alg_cfg['ProjectionDataId'] = sino_id
         alg_cfg['ReconstructionDataId'] = reconstruction_id
+        # TODO: fix the parameters below
         #alg_cfg['MinConstraint'] = 0
         #alg_cfg['MaxConstraint'] = 255
         #alg_cfg['ProjectionOrder'] = 'random'  # is set as default
@@ -132,7 +147,7 @@ class DART():
         astra.algorithm.run(algorithm_id, iters)
         # create reconstruction data
         reconstruction = astra.data2d.get(reconstruction_id)
-
+        # constraint the max/min values
         reconstruction[reconstruction > 255] = 255
         reconstruction[reconstruction < 0] = 0
 

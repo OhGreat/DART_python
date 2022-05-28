@@ -1,14 +1,28 @@
-# Discrete Algebric Reconstruction Technique (DART) - *currently in development*
+# Discrete Algebraic Reconstruction Technique (DART)
 DART is an iterative reconstruction algorithm for discrete tomography. The original publication in <a href="#original_publication">[1]</a> was used as reference to create this library.
-What this repository consists of, is an implementation of the DART algorithm together with a framework to generate phantoms and measurements, to test the algorithm itself.
-
-## DART
-
-### ART reconstruction step
+What this repository consists of, is an implementation of the DART algorithm together with a framework to generate phantoms and measurements, to test the algorithm itself.<br/>
 The DART algorithm, implemented as in the original publication <a href="#original_publication"> [1]</a>, alternates between continuous and discrete reconstruction steps. For the continuous step, many reconstruction algorithms were implemented with **astra-toolbox**. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>. For the original publication of SART, which is the main reconstruction algorithm presented in the original DART publication, you can refer to <a href="#SART">[5]</a>.
 
-## Prerequisites
 
+<!-- TABLE OF CONTENTS -->
+<details id="test">
+  <summary>Table of Contents</summary>
+  <ul>
+    <li><a href="#prerequisites">Prerequisites</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <ul>
+        <li><a href="#generating-phantoms">Generationg phantoms</a></li>
+        <li><a href="#generating-projections">Generating projections</a></li>
+        <li><a href="#running-dart">Running DART</a></li>
+    </ul>
+    <li><a href="#examples-and-results">Examples & Results</a></li>
+    <li><a href="#issues">Issues</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</details>
+
+
+## Prerequisites
 `Python 3` and the following packages are required to use this library:
 
 - `numpy`
@@ -27,7 +41,6 @@ Usage of the framework for each of this tasks is described in detail in the foll
 ### Generating phantoms
 
 #### Semilunar phantoms
-
 To generate semilunar like phantoms you can use the `create_semilunar` function. It can be imported from `phantom_creator.py` and used as below:
 ```
 from phantom_creator import create_semilunars
@@ -65,19 +78,35 @@ Parameters:
 - `use_gpu`: creates a projector that can use GPU  
 
 Output:
-- The function will return `proj_id`, `sino_id` and `sinogram`. The first is a reference to the astra toolkit projector object, the second is a reference to the astra toolkit sinogram object and the former is the sinograms' actual measurements.
+- The function will return `proj_id`, `sino_id` and `sinogram`. The first is a reference to the astra toolbox projector object, the second is a reference to the astra toolkit sinogram object and the former is the sinograms' actual measurements.
 
 #### From 3D phantoms
+***to be added***
+
 
 ### Running DART
-All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions available in the library will follow in this section.
+All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions  available in the library will follow in this section.
  
-#### DART Instance
-DART can be imported and initialized in the following way:
+#### DART algorithm
+DART can be imported and used in the following way:
 ```python
 from reconstruction_algs.DART import DART
-dart_instance = DART()
+dart = DART()
+dart_res = dart(iters=50,
+            gray_levels=[0,150,255],p=0.85,
+            vol_shape=(256,256),
+            projector_id=projector_id, sino_id=sino_id,
+            SART_iter=200, use_gpu=True)
 ```
+Parameters:
+- `iters`: number of DART iteration to perform
+- `gray_levels`: gray levels known *a priori* used in the segmentation step.
+- `p`: probability of a pixel to not be sampled as a free pixel.
+- `vol_shape`: shape of the volume to create as output.
+- `projector_id`: reference to the astra toolbox projector used to make the projections. (Can be created with the **project_from_2D** fucntion described above)
+- `sino_id`: reference to the astra toolbox sinogram. (Can also be created with the **project_from_2D** fucntion described above)
+
+
 ### Segmentation
 The method `segment` can be used to segment an image, given the range of gray values:
 ```python
@@ -113,17 +142,17 @@ Parameters:
 Output:
 - numpy array of boundary pixels with respect to coordinates given.
 
-### Non-boundary free pixels
-To calculate the non-boundary free pixels, the following method is available:
+### Free pixels
+To calculate the free pixels, the following method is available:
 ```python
-non_b_pixels = dart.non_boundary_free_pixels(boundaries, p)
+free_pixels = dart.free_pixels(img_shape, p)
 ```
 Parameters:
-- `boundaries` : is the boundaries binary mask as a binary 2D numpy array, as defined in the output of the method `boundary_pixels`.
+- `img_shape` : shape of the original image.
 - `p` : defines the probability for a pixel to not be sampled as a non-boudary free pixel.
 
 Output:
-- The output `non_b_pixels` is a binary 2D matrix, where the True values represent if a given pixel was sampled as a free pixel.
+- The output `free_pixels` is a binary 2D matrix, where the True values represent if a given pixel was sampled as a free pixel.
 
 ### Algebraic Reconstruction
 For the continous reconstruction step, various algorithms have been implemented. Specifically, **SART**, **SIRT**, **ART** and **FBP** are available for experimentation.
@@ -145,16 +174,12 @@ Output:
 
 ## Examples and Results
 
-**to be added**
+***to be added***
 
-## TODO
-
-- add smoothing as last step of dart algorithm
-- add sampling intermediate steps of the algorithm
-- add getting error for plots
+## Issues
+If you encounter any problems while using the framework you can notify us by opening an issue here: https://github.com/OhGreat/DART_python/issues
 
 ## References
-
 <div id="original_publication">
 [1].<br/>
 Batenburg, Kees & Sijbers, Jan. (2011). DART: A Practical Reconstruction Algorithm for Discrete Tomography. IEEE transactions on image processing : a publication of the IEEE Signal Processing Society. 20. 2542-53. 10.1109/TIP.2011.2131661, <a href="https://ieeexplore.ieee.org/document/5738333">https://ieeexplore.ieee.org/document/5738333</a>
