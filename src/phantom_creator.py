@@ -64,7 +64,7 @@ def create_semilunars(img_size=512, gray_values=[80,120,180], n=1,
         noise =  np.abs(np.random.normal(mu, sigma, 2))
         
         image[xv**2 + yv**2 >0.6] = 0
-        image[xv**2 + yv**2 <0.49] = 170
+        image[xv**2 + yv**2 <0.49] = gray_values[1]
         if overlap == True:
             image[(xv-0.1+noise[0])**2 + (yv-0.1+noise[0])**2 <0.3] = gray_values[0]
             image[(xv-0.1+noise[1])**2 + (yv-0.1+noise[1])**2 <0.19] = gray_values[2]

@@ -1,7 +1,7 @@
 # Discrete Algebraic Reconstruction Technique (DART)
 DART is an iterative reconstruction algorithm for discrete tomography. The original publication in <a href="#original_publication">[1]</a> was used as reference to create this library.
 What this repository consists of, is an implementation of the DART algorithm together with a framework to generate phantoms and measurements, to test the algorithm itself.<br/>
-The DART algorithm, implemented as in the original publication <a href="#original_publication"> [1]</a>, alternates between continuous and discrete reconstruction steps. For the continuous step, many reconstruction algorithms were implemented with **astra-toolbox**. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>. For the original publication of SART, which is the main reconstruction algorithm presented in the original DART publication, you can refer to <a href="#SART">[5]</a>.
+The DART algorithm alternates between continuous and discrete reconstruction steps. For the continuous step, many reconstruction algorithms were implemented with **astra-toolbox**. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>. For the original publication of SART, which is the main reconstruction algorithm presented in the original DART publication, you can refer to <a href="#SART">[5]</a>.
 
 
 <!-- TABLE OF CONTENTS -->
@@ -42,7 +42,7 @@ Usage of the framework for each of this tasks is described in detail in the foll
 
 #### Semilunar phantoms
 To generate semilunar like phantoms you can use the `create_semilunar` function. It can be imported from `phantom_creator.py` and used as below:
-```
+```python
 from phantom_creator import create_semilunars
 phantom_list = create_semilunars(img_size=512, gray_values=[255, 200, 150], n=3, overlap=False, seed=None, img_name="dir/to/save/filename")
 ``` 

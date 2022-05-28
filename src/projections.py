@@ -4,8 +4,9 @@ from os import mkdir
 from os.path import isdir
 from PIL import Image
 
-def project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, 
-                    apply_noise=False, save_dir=None, use_gpu=False):
+def project_from_2D(phantom_id, vol_geom, n_projections, n_detectors, 
+                    detector_spacing, apply_noise=False, 
+                    save_dir=None, use_gpu=False):
         """ Creates projection for the given input data.
             
             Parameters:
@@ -21,9 +22,7 @@ def project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing,
         """
 
         img_width, img_height = vol_geom['GridRowCount'], vol_geom['GridColCount']
-        # define the number of detectors 
-        # as the number of rows in the image
-        n_detectors = img_width
+
         # create angles for measurements
         angles = np.linspace(0, np.pi, n_projections)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import astra
 from scipy.ndimage import gaussian_filter
-from os import listdir, makedirs
+from os import makedirs
 from os.path import exists
 
 class DART():
@@ -118,40 +118,74 @@ class DART():
                 - p: probability that a pixel is not sampled 
                     as a non boundary free pixel
         """
-        c = [0,1]
-        probs = [p, 1-p]
+        c, probs = [0,1], [p, 1-p]
         free_pixels = np.random.choice(a=c, 
                                     size=img_shape, 
                                     p=probs).astype(np.uint8)
         return free_pixels
 
-    def SART(self, vol_geom, projector_id, sino_id, iters=200, use_gpu=False):
+    def SART(self, vol_geom, projector_id, sino_id, iters=2000, use_gpu=False):
         """ Simultaneous Algebraic Reconstruction Technique (SART) with
             randomized scheme. Used from DART as the continious update step.
         """
         # create empty reconstruction
-        reconstruction_id = astra.data2d.create('-vol', vol_geom, data=0)
+        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
         # define SART configuration parameters
-        if use_gpu:
-            alg_cfg = astra.astra_dict('SART_CUDA')
-        else:
-            alg_cfg = astra.astra_dict('SART')
+        alg_cfg = astra.astra_dict('SART_CUDA' if use_gpu else 'SART')
         alg_cfg['ProjectorId'] = projector_id
         alg_cfg['ProjectionDataId'] = sino_id
-        alg_cfg['ReconstructionDataId'] = reconstruction_id
-        # TODO: fix the parameters below
-        #alg_cfg['MinConstraint'] = 0
-        #alg_cfg['MaxConstraint'] = 255
-        #alg_cfg['ProjectionOrder'] = 'random'  # is set as default
+        alg_cfg['ReconstructionDataId'] = rec_id
+        # define algorithm
+        algorithm_id = astra.algorithm.create(alg_cfg)
+        # run the algirithm
+        astra.algorithm.run(algorithm_id, iters)
+        # create reconstruction data
+        rec = astra.data2d.get(rec_id)
+        # constraint the max/min values
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
+
+        return rec_id, rec
+
+    def SIRT(self, vol_geom, sino_id, iters=2000, use_gpu=False):
+        # create empty reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
+        # define SIRT config params
+        alg_cfg = astra.astra_dict('SIRT_CUDA' if use_gpu else 'SIRT')
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = rec_id
+        # define algorithm
+        alg_id = astra.algorithm.create(alg_cfg)
+        # run the algorithm
+        astra.algorithm.run(alg_id, iters)
+        # create reconstruction data
+        rec = astra.data2d.get(rec_id)
+        # constraint min/max values
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
+
+        return rec_id, rec
+
+    def FBP(self, vol_geom, projector_id, sino_id, iters=2000, use_gpu=False):
+        """ Simultaneous Algebraic Reconstruction Technique (SART) with
+            randomized scheme. Used from DART as the continious update step.
+        """
+        # create empty reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
+        # define SART configuration parameters
+        alg_cfg = astra.astra_dict('FBP_CUDA' if use_gpu else 'FBP')
+        alg_cfg['ProjectorId'] = projector_id
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = rec_id
 
         # define algorithm
         algorithm_id = astra.algorithm.create(alg_cfg)
         # run the algirithm
         astra.algorithm.run(algorithm_id, iters)
         # create reconstruction data
-        reconstruction = astra.data2d.get(reconstruction_id)
+        rec = astra.data2d.get(rec_id)
         # constraint the max/min values
-        reconstruction[reconstruction > 255] = 255
-        reconstruction[reconstruction < 0] = 0
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
 
-        return reconstruction_id, reconstruction
+        return rec_id, rec
