@@ -12,15 +12,16 @@ class DART():
     def __call__(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
                 SART_iter, use_gpu=False,
-                stats_dir=None, original_phantom=None):
+                stats=None):
         """ TODO: add documentation
+            Parameters:
+            - stats: tuple of 3 values. (every_n, phantom, save_path)
         """
+    
         # check directory exists
-        if stats_dir != None:
-            if original_phantom == None:
-                exit("original_phantom is required when stats_dir is defined" )
-            if not exists(stats_dir):
-                makedirs(stats_dir)
+        if stats != None:
+            if not exists(stats[2]):
+                makedirs(stats[2])
             
 
         # create volume geometry
@@ -54,6 +55,8 @@ class DART():
             curr_reconstr[free_pixels_idx[0], 
                         free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
                                                         free_pixels_idx[1]]
+            # save statistics if stats_dir is defined
+
         return curr_reconstr
 
     def segment(self, img, gray_levels):

@@ -7,15 +7,15 @@ from os.path import exists
 
 def main():
     # output directory
-    out_dir = "results"
+    out_dir = "results/semilunars"
     if not exists(out_dir):
         makedirs(out_dir)
 
     dir = "phantoms/semilunars/"
     for filename in sorted(listdir(dir)):
-        print(filename)
-
-    
+        phantom = np.array(Image.open(dir+filename), dtype=np.uint8)
+        stats = (5, phantom ,out_dir)
+        print(stats)
 
 
 
