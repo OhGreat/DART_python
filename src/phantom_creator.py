@@ -146,7 +146,7 @@ def create_alien(img_size=512, gray_values=[40,80,100], n=1,
             Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png") 
     return aliens
 
-def create_paws(img_size=512, gray_values=[50,110,120], n=1,
+def create_paws(img_size=512, gray_values=[110,120], n=1,
                                  seed=None, img_name=None):
     """ Create paw like phantoms.
 
@@ -184,34 +184,40 @@ def create_paws(img_size=512, gray_values=[50,110,120], n=1,
     paws = []
     for i in range(n):
         image, xv, yv = create_image(x,y)
-        thresh = np.random.choice(range(11),3)
-        shift_x = np.random.choice(range(50))
+
+        thresh = np.random.choice(range(20),3)
+        shift_x = np.random.choice(range(20,100))
         shift_y = np.random.choice(range(3))
-        # noise for randomization
-        mu, sigma = 0 , 0.1
+
+        mu, sigma = 0 , 0.5
         noise =  np.abs(np.random.normal(mu, sigma, 2))
+
         # create images
         image[xv**2 + yv**2 >0.1] = 0
-        image[xv**2 + yv**2 <0.09] = 110
+        image[xv**2 + yv**2 <0.09] = gray_values[0]
         if img_size==256:
-            image[25:231,30:40] = 120
-            image[25:231, 216:226] = 120
-            image[25:35, 40:216] = 120
-            image[221:231, 40:216] = 120
-            image[180:210+shift_y,50:80+shift_x] = 120
+            image[25:231,30:40] = gray_values[1]
+            image[25:231, 216:226] = gray_values[1]
+            image[25:35, 40:216] = gray_values[1]
+            image[221:231, 40:216] = gray_values[1]
+            image[180:210+shift_y,50:80+shift_x] = gray_values[1]
         else: 
-            image[50:462,60:80] = 120
-            image[50:462, 432:452] = 120
-            image[50:70, 80:432] = 120
-            image[442:462, 80:432] = 120
-            image[360:420+shift_y,100:160+shift_x] = 120
-        image[(xv-0.5)**2/0.2+(yv+0.3-noise[0])**2<0.05] = 110
-        if thresh[0] > 5: 
-            image[(xv-0.006)**2/0.4+(yv+0.18)**2/0.7<0.01] = gray_values[0]
-        if thresh[1] <4: 
-            image[(xv+0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = gray_values[0]
-        image[(xv-0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = gray_values[0]
-        image[(xv-0.01)**2/0.7+(yv-0.1)**2/0.7<0.02] = gray_values[0]
+            image[50:462,60:80] = gray_values[1]
+            image[50:462, 432:452] = gray_values[1]
+            image[50:70, 80:432] = gray_values[1]
+            image[442:462, 80:432] = gray_values[1]
+            image[360:420+shift_y,100:160+shift_x] = gray_values[1]
+
+        image[(xv-0.5)**2/0.2+(yv+0.3-noise[0])**2<0.05] = gray_values[0]
+
+        if thresh[0] <7: 
+            image[(xv-0.006)**2/0.4+(yv+0.18)**2/0.7<0.01] = 0
+        if thresh[1] > 5 : 
+            image[(xv+0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = 0
+        
+        image[(xv-0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = 0
+        image[(xv-0.01)**2/0.7+(yv-0.1)**2/0.7<0.02] = 0
+        
         paws.append(image)
         # save image
         if img_name != None:
