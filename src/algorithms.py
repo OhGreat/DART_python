@@ -1,3 +1,4 @@
+from matplotlib import use
 import numpy as np
 import astra
 from scipy.ndimage import gaussian_filter
@@ -11,25 +12,38 @@ class DART():
 
     def __call__(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
-                SART_iter, use_gpu=False,
-                stats=None):
+                rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
         """ TODO: add documentation
             Parameters:
-            - stats: tuple of 3 values. (every_n, phantom, save_path)
+                - iters: number of DART iteration to perform
+                - gray_levels: gray levels known a priori used in the segmentation step.
+                - p: probability of a pixel to not be sampled as a free pixel.
+                - vol_shape: shape of the volume to create as output.
+                - projector_id: reference to the astra toolbox projector used to make the projections.
+                - sino_id: reference to the astra toolbox sinogram.
+                - rec_algs: tuple containing the initial and the iterated 
+                    reconstruction algorithms to use.
+            Output:
+                returns the reconstructed phantom 
+                of shape = vol_shape, as a numpy 2D array
         """
-    
-        # check directory exists
-        if stats != None:
-            if not exists(stats[2]):
-                makedirs(stats[2])
-            
-
         # create volume geometry
         vol_geom = astra.creators.create_vol_geom(vol_shape)
         # initialize current reconstruction
-        _, curr_reconstr = self.SART(vol_geom,projector_id, 
-                                    sino_id, 
-                                    iters=SART_iter)
+        if rec_algs[0] == "SART":
+            _, curr_reconstr = self.SART(vol_geom, 0, projector_id, 
+                                    sino_id, iters=rec_iter,
+                                    use_gpu=use_gpu)
+        elif rec_algs[0] == "SIRT":
+            _, curr_reconstr = self.SIRT(vol_geom, 0, sino_id, 
+                                        iters=rec_iter,
+                                        use_gpu=use_gpu)
+        elif rec_algs[0] == "FBP":
+            _, curr_reconstr = self.FBP(vol_geom, 0, projector_id, 
+                                        sino_id, iters=rec_iter,
+                                        use_gpu=use_gpu)
+        else:
+            exit("Please choose valid reconstruction algorithms.")
 
         for i in range(iters):
             # segment current reconstructed image
@@ -40,23 +54,108 @@ class DART():
             free_pixels = self.free_pixels(vol_shape,p)
             # mask used to set the pixels from the new reconstruction
             non_fixed_pixels = np.logical_or(boundary_pixels,free_pixels)
-            # calculate new SART reconstruction
-            _, new_reconstr = self.SART(vol_geom, projector_id, 
-                                        sino_id, iters=SART_iter,
+            # take indexes of free pixels (non fixed pixels)
+            free_pixels_idx = np.where(non_fixed_pixels)
+            # create image to feed to reconstructor
+            segmented_img[free_pixels_idx[0], 
+                        free_pixels_idx[1]] = curr_reconstr[free_pixels_idx[0],
+                                                            free_pixels_idx[1]]
+            # calculate new reconstruction
+            if rec_algs[1] == "FBP":
+                _, new_reconstr = self.FBP(vol_geom, segmented_img,
+                                            projector_id, sino_id,
+                                            iters=rec_iter, use_gpu=use_gpu)
+            elif rec_algs[1] == "SART":
+                _, new_reconstr = self.SART(vol_geom, segmented_img, 
+                                            projector_id, sino_id,
+                                            iters=rec_iter, use_gpu=use_gpu)
+            elif rec_algs[1] == "SIRT":
+                _, new_reconstr = self.SIRT(vol_geom, segmented_img, sino_id, 
+                                            iters=rec_iter, use_gpu=use_gpu)
+            else:
+                exit("Please choose valid reconstruction algorithms.")
+            # update the current free pixels
+            curr_reconstr[free_pixels_idx[0], 
+                        free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
+                                                            free_pixels_idx[1]]
+            # smoothing operation on free pixels
+            if i < iters - 1: 
+                smooth_rec = gaussian_filter(curr_reconstr, sigma=1)
+                curr_reconstr[free_pixels_idx[0], 
+                            free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
+                                                            free_pixels_idx[1]]
+        return curr_reconstr
+
+    def run_alg(self, iters, gray_levels, p, 
+                vol_shape, projector_id, sino_id, 
+                rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
+        """ TODO: add documentation
+            Parameters:
+                - iters: number of DART iteration to perform
+                - gray_levels: gray levels known a priori used in the segmentation step.
+                - p: probability of a pixel to not be sampled as a free pixel.
+                - vol_shape: shape of the volume to create as output.
+                - projector_id: reference to the astra toolbox projector used to make the projections.
+                - sino_id: reference to the astra toolbox sinogram.
+                - rec_algs: tuple containing the initial and the iterated 
+                    reconstruction algorithms to use.
+            Output:
+                returns the reconstructed phantom 
+                of shape = vol_shape, as a numpy 2D array
+        """
+        # create volume geometry
+        vol_geom = astra.creators.create_vol_geom(vol_shape)
+        # initialize current reconstruction
+        if rec_algs[0] == "SART":
+            _, curr_reconstr = self.SART(vol_geom, 0, projector_id, 
+                                    sino_id, iters=rec_iter,
+                                    use_gpu=use_gpu)
+        elif rec_algs[0] == "SIRT":
+            _, curr_reconstr = self.SIRT(vol_geom, 0, sino_id, 
+                                        iters=rec_iter,
                                         use_gpu=use_gpu)
+        elif rec_algs[0] == "FBP":
+            _, curr_reconstr = self.FBP(vol_geom, 0, projector_id, 
+                                        sino_id, iters=rec_iter,
+                                        use_gpu=use_gpu)
+        else:
+            exit("Please choose valid reconstruction algorithms.")
+
+        for i in range(iters):
+            # segment current reconstructed image
+            curr_reconstr = self.segment(curr_reconstr, gray_levels)
+            # calculate boundary pixels
+            boundary_pixels = self.boundary_pixels(curr_reconstr)
+            # calculate free pixels
+            free_pixels = self.free_pixels(vol_shape,p)
+            # mask used to set the pixels from the new reconstruction
+            non_fixed_pixels = np.logical_or(boundary_pixels,free_pixels)
+            # calculate new reconstruction
+            if rec_algs[1] == "FBP":
+                _, new_reconstr = self.FBP(vol_geom, curr_reconstr, 
+                                            projector_id, sino_id,
+                                            iters=rec_iter, use_gpu=use_gpu)
+            elif rec_algs[1] == "SART":
+                _, new_reconstr = self.SART(vol_geom, curr_reconstr, 
+                                            projector_id, sino_id,
+                                            iters=rec_iter, use_gpu=use_gpu)
+            elif rec_algs[1] == "SIRT":
+                _, new_reconstr = self.SIRT(vol_geom, curr_reconstr, sino_id, 
+                                            iters=rec_iter, use_gpu=use_gpu)
+            else:
+                exit("Please choose valid reconstruction algorithms.")
             # take indexes of non fixed pixels
             free_pixels_idx = np.where(non_fixed_pixels)
             # update the current free pixels
             curr_reconstr[free_pixels_idx[0], 
                         free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
                                                             free_pixels_idx[1]]
-            # smoothing operation
-            smooth_rec = gaussian_filter(curr_reconstr, sigma=1)
-            curr_reconstr[free_pixels_idx[0], 
-                        free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
-                                                        free_pixels_idx[1]]
-            # save statistics if stats_dir is defined
-
+            # smoothing operation on free pixels except last reconstruction
+            if i < iters - 1: 
+                smooth_rec = gaussian_filter(curr_reconstr, sigma=1)
+                curr_reconstr[free_pixels_idx[0], 
+                            free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
+                                                            free_pixels_idx[1]]
         return curr_reconstr
 
     def segment(self, img, gray_levels):
@@ -124,12 +223,12 @@ class DART():
                                     p=probs).astype(np.uint8)
         return free_pixels
 
-    def SART(self, vol_geom, projector_id, sino_id, iters=2000, use_gpu=False):
+    def SART(self, vol_geom, vol_data, projector_id, sino_id, iters=2000, use_gpu=False):
         """ Simultaneous Algebraic Reconstruction Technique (SART) with
             randomized scheme. Used from DART as the continious update step.
         """
-        # create empty reconstruction
-        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
         # define SART configuration parameters
         alg_cfg = astra.astra_dict('SART_CUDA' if use_gpu else 'SART')
         alg_cfg['ProjectorId'] = projector_id
@@ -144,12 +243,11 @@ class DART():
         # constraint the max/min values
         rec[rec > 255] = 255
         rec[rec < 0] = 0
-
         return rec_id, rec
 
-    def SIRT(self, vol_geom, sino_id, iters=2000, use_gpu=False):
-        # create empty reconstruction
-        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
+    def SIRT(self, vol_geom, vol_data, sino_id, iters=2000, use_gpu=False):
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
         # define SIRT config params
         alg_cfg = astra.astra_dict('SIRT_CUDA' if use_gpu else 'SIRT')
         alg_cfg['ProjectionDataId'] = sino_id
@@ -163,21 +261,16 @@ class DART():
         # constraint min/max values
         rec[rec > 255] = 255
         rec[rec < 0] = 0
-
         return rec_id, rec
 
-    def FBP(self, vol_geom, projector_id, sino_id, iters=2000, use_gpu=False):
-        """ Simultaneous Algebraic Reconstruction Technique (SART) with
-            randomized scheme. Used from DART as the continious update step.
-        """
-        # create empty reconstruction
-        rec_id = astra.data2d.create('-vol', vol_geom, data=0)
+    def FBP(self, vol_geom, vol_data, projector_id, sino_id, iters=2000, use_gpu=False):
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
         # define SART configuration parameters
         alg_cfg = astra.astra_dict('FBP_CUDA' if use_gpu else 'FBP')
         alg_cfg['ProjectorId'] = projector_id
         alg_cfg['ProjectionDataId'] = sino_id
         alg_cfg['ReconstructionDataId'] = rec_id
-
         # define algorithm
         algorithm_id = astra.algorithm.create(alg_cfg)
         # run the algirithm
@@ -187,5 +280,4 @@ class DART():
         # constraint the max/min values
         rec[rec > 255] = 255
         rec[rec < 0] = 0
-
         return rec_id, rec
