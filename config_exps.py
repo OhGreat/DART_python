@@ -11,7 +11,8 @@ def main():
     # total iterations
     iters = 2000
     # phantom family
-    phantom_fam = ["semilunars", "aliens", "paws"]
+    #phantom_fam = ["semilunars", "aliens", "paws"]
+    phantom_fam = ["clouds"]
     for phantom_family in phantom_fam:
         # input directory
         in_dir = f"phantoms/{phantom_family}/"
@@ -69,7 +70,6 @@ def main():
                     gray_levels=np.unique(phantom).astype(np.float32),
                     p=0.9, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_algs=("SART", "SART"),
                     rec_iter=200, use_gpu=True)
             dart_res[dart_res > 255] = 255
             dart_res[dart_res < 0] = 0
@@ -82,7 +82,6 @@ def main():
                     gray_levels=np.unique(phantom).astype(np.float32),
                     p=0.9, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_algs=("FBP", "FBP"),
                     rec_iter=200, use_gpu=True)
             dart_res[dart_res > 255] = 255
             dart_res[dart_res < 0] = 0
@@ -95,7 +94,6 @@ def main():
                     gray_levels=np.unique(phantom).astype(np.float32),
                     p=0.9, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_algs=("SIRT", "FBP"),
                     rec_iter=200, use_gpu=True)
             dart_res[dart_res > 255] = 255
             dart_res[dart_res < 0] = 0
@@ -108,7 +106,6 @@ def main():
                     gray_levels=np.unique(phantom).astype(np.float32),
                     p=0.9, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_algs=("SART", "FBP"),
                     rec_iter=200, use_gpu=True)
             dart_res[dart_res > 255] = 255
             dart_res[dart_res < 0] = 0

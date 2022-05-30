@@ -1,19 +1,16 @@
-from matplotlib import use
 import numpy as np
 import astra
 from scipy.ndimage import gaussian_filter
-from os import makedirs
-from os.path import exists
 
 class DART():
 
     def __init__(self):
         pass
 
-    def test(self, iters, gray_levels, p, 
+    def original(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
                 rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
-        """ TODO: add documentation
+        """ Original implementation as in the paper
             Parameters:
                 - iters: number of DART iteration to perform
                 - gray_levels: gray levels known a priori used in the segmentation step.
@@ -87,9 +84,9 @@ class DART():
         return curr_reconstr
 
     def __call__(self, iters, gray_levels, p, 
-                vol_shape, projector_id, sino_id, 
-                rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
-        """ TODO: add documentation
+                vol_shape, projector_id, sino_id,
+                rec_iter=200, use_gpu=False):
+        """ New implementation with one less step and better reconstruction.
             Parameters:
                 - iters: number of DART iteration to perform
                 - gray_levels: gray levels known a priori used in the segmentation step.
