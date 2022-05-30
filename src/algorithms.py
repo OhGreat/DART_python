@@ -10,7 +10,7 @@ class DART():
     def __init__(self):
         pass
 
-    def __call__(self, iters, gray_levels, p, 
+    def test(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
                 rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
         """ TODO: add documentation
@@ -86,7 +86,7 @@ class DART():
                                                             free_pixels_idx[1]]
         return curr_reconstr
 
-    def run_alg(self, iters, gray_levels, p, 
+    def __call__(self, iters, gray_levels, p, 
                 vol_shape, projector_id, sino_id, 
                 rec_algs=("SIRT","FBP"), rec_iter=200, use_gpu=False):
         """ TODO: add documentation
@@ -105,53 +105,31 @@ class DART():
         """
         # create volume geometry
         vol_geom = astra.creators.create_vol_geom(vol_shape)
-        # initialize current reconstruction
-        if rec_algs[0] == "SART":
-            _, curr_reconstr = self.SART(vol_geom, 0, projector_id, 
+        # create initial reconstruction
+        _, curr_reconstr = self.SART(vol_geom, 0, projector_id, 
                                     sino_id, iters=rec_iter,
                                     use_gpu=use_gpu)
-        elif rec_algs[0] == "SIRT":
-            _, curr_reconstr = self.SIRT(vol_geom, 0, sino_id, 
-                                        iters=rec_iter,
-                                        use_gpu=use_gpu)
-        elif rec_algs[0] == "FBP":
-            _, curr_reconstr = self.FBP(vol_geom, 0, projector_id, 
-                                        sino_id, iters=rec_iter,
-                                        use_gpu=use_gpu)
-        else:
-            exit("Please choose valid reconstruction algorithms.")
-
         for i in range(iters):
             # segment current reconstructed image
             curr_reconstr = self.segment(curr_reconstr, gray_levels)
+            # calculate new reconstruction
+            _, new_reconstr = self.SART(vol_geom, curr_reconstr, 
+                                            projector_id, sino_id,
+                                            iters=rec_iter, use_gpu=use_gpu)
             # calculate boundary pixels
             boundary_pixels = self.boundary_pixels(curr_reconstr)
             # calculate free pixels
             free_pixels = self.free_pixels(vol_shape,p)
             # mask used to set the pixels from the new reconstruction
             non_fixed_pixels = np.logical_or(boundary_pixels,free_pixels)
-            # calculate new reconstruction
-            if rec_algs[1] == "FBP":
-                _, new_reconstr = self.FBP(vol_geom, curr_reconstr, 
-                                            projector_id, sino_id,
-                                            iters=rec_iter, use_gpu=use_gpu)
-            elif rec_algs[1] == "SART":
-                _, new_reconstr = self.SART(vol_geom, curr_reconstr, 
-                                            projector_id, sino_id,
-                                            iters=rec_iter, use_gpu=use_gpu)
-            elif rec_algs[1] == "SIRT":
-                _, new_reconstr = self.SIRT(vol_geom, curr_reconstr, sino_id, 
-                                            iters=rec_iter, use_gpu=use_gpu)
-            else:
-                exit("Please choose valid reconstruction algorithms.")
             # take indexes of non fixed pixels
             free_pixels_idx = np.where(non_fixed_pixels)
             # update the current free pixels
             curr_reconstr[free_pixels_idx[0], 
                         free_pixels_idx[1]] = new_reconstr[free_pixels_idx[0], 
                                                             free_pixels_idx[1]]
-            # smoothing operation on free pixels except last reconstruction
-            if i < iters - 1: 
+            # smoothing operation except on for last iteration
+            if i < iters - 1:
                 smooth_rec = gaussian_filter(curr_reconstr, sigma=1)
                 curr_reconstr[free_pixels_idx[0], 
                             free_pixels_idx[1]] = smooth_rec[free_pixels_idx[0], 
