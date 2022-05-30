@@ -12,7 +12,8 @@ def main():
     # total iterations
     iters = 2000
     # phantom family
-    phants = ["semilunars", "paws", "aliens"]
+    #phants = ["semilunars", "paws", "aliens"]
+    phants = ["clouds"]
     for phantoms in phants:
         # input directory
         in_dir = f"phantoms/{phantoms}/"
@@ -77,7 +78,7 @@ def main():
                         gray_levels=gray_lvls,p=0.9,
                         vol_shape=phantom.shape,
                         projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200, rec_algs=("SART", "SART"), 
+                        rec_iter=200,
                         use_gpu=True)
             proj_errors_dart0.append(np.abs(phantom - dart_res).mean())
 
@@ -141,7 +142,7 @@ def main():
                         gray_levels=gray_lvls,p=0.9,
                         vol_shape=phantom.shape,
                         projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200, rec_algs=("SART", "SART"), 
+                        rec_iter=200,
                         use_gpu=True)
             ang_errors_dart0.append(np.abs(phantom - dart_res).mean())
 
