@@ -11,8 +11,7 @@ def main():
     # total iterations
     iters = 2000
     # phantom family
-    #phantom_fam = ["semilunars", "aliens", "paws"]
-    phantom_fam = ["clouds"]
+    phantom_fam = ["semilunars", "aliens", "paws", "clouds"]
     for phantom_family in phantom_fam:
         # input directory
         in_dir = f"phantoms/{phantom_family}/"
@@ -63,54 +62,35 @@ def main():
             curr_errors.append(np.abs(phantom - fbp_res).mean())
             Image.fromarray(fbp_res.astype(np.uint8)).save(results_dir+f"FBP_{curr_file}.png")
 
-
             # DART 0
             dart = DART()
-            dart_res = dart(iters=100,
+            dart_res = dart(iters=50,
                     gray_levels=np.unique(phantom).astype(np.float32),
-                    p=0.9, vol_shape=phantom.shape,
+                    p=0.85, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_iter=200, use_gpu=True)
-            dart_res[dart_res > 255] = 255
-            dart_res[dart_res < 0] = 0
+                    rec_alg="SART_CUDA",rec_iter=200)
             curr_errors.append(np.abs(phantom - dart_res).mean())
-            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_SART_SART_{curr_file}.png")
+            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_SART_{curr_file}.png")
 
             # DART 1
             dart = DART()
-            dart_res = dart(iters=100,
+            dart_res = dart(iters=50,
                     gray_levels=np.unique(phantom).astype(np.float32),
-                    p=0.9, vol_shape=phantom.shape,
+                    p=0.85, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_iter=200, use_gpu=True)
-            dart_res[dart_res > 255] = 255
-            dart_res[dart_res < 0] = 0
+                    rec_alg="SIRT_CUDA",rec_iter=200)
             curr_errors.append(np.abs(phantom - dart_res).mean())
-            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_FBP_FBP_{curr_file}.png")
+            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_SIRT_{curr_file}.png")
 
-            # DART 2
+            # DART 1
             dart = DART()
-            dart_res = dart(iters=100,
+            dart_res = dart(iters=50,
                     gray_levels=np.unique(phantom).astype(np.float32),
-                    p=0.9, vol_shape=phantom.shape,
+                    p=0.85, vol_shape=phantom.shape,
                     projector_id=projector_id, sino_id=sino_id,
-                    rec_iter=200, use_gpu=True)
-            dart_res[dart_res > 255] = 255
-            dart_res[dart_res < 0] = 0
+                    rec_alg="FBP_CUDA",rec_iter=200)
             curr_errors.append(np.abs(phantom - dart_res).mean())
-            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_SIRT_FBP_{curr_file}.png")
-
-            # DART 3
-            dart = DART()
-            dart_res = dart(iters=100,
-                    gray_levels=np.unique(phantom).astype(np.float32),
-                    p=0.9, vol_shape=phantom.shape,
-                    projector_id=projector_id, sino_id=sino_id,
-                    rec_iter=200, use_gpu=True)
-            dart_res[dart_res > 255] = 255
-            dart_res[dart_res < 0] = 0
-            curr_errors.append(np.abs(phantom - dart_res).mean())
-            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_SART_FBP_{curr_file}.png")
+            Image.fromarray(dart_res.astype(np.uint8)).save(results_dir+f"DART_FBP_{curr_file}.png")
 
             curr_file += 1
             all_errors.append(curr_errors)

@@ -39,7 +39,6 @@ def main():
         proj_errors_sirt = []
         proj_errors_rbf = []
         proj_errors_dart0 = []
-        proj_errors_dart1 = []
         for curr_proj in n_projections:
             print("curr_proj:", curr_proj)
             n_proj, n_detectors, det_spacing = curr_proj, 512, 1
@@ -74,30 +73,17 @@ def main():
             # DART 0
             dart = DART()
             gray_lvls = np.unique(phantom).astype(np.float32) 
-            dart_res = dart(iters=100,
-                        gray_levels=gray_lvls,p=0.9,
+            dart_res = dart(iters=50,
+                        gray_levels=gray_lvls,p=0.85,
                         vol_shape=phantom.shape,
                         projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200,
-                        use_gpu=True)
+                        rec_alg="SART_CUDA", rec_iter=200)
             proj_errors_dart0.append(np.abs(phantom - dart_res).mean())
-
-            """# DART 1
-            dart = DART()
-            gray_lvls = np.unique(phantom).astype(np.float32) 
-            dart_res = dart(iters=100,
-                        gray_levels=gray_lvls,p=0.9,
-                        vol_shape=phantom.shape,
-                        projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200, rec_algs=("SART", "FBP"), 
-                        use_gpu=True)
-            proj_errors_dart1.append(np.abs(phantom - dart_res).mean())"""
 
         np.save(out_dir_proj+"SART", proj_errors_sart)
         np.save(out_dir_proj+"SIRT", proj_errors_sirt)
         np.save(out_dir_proj+"RBF", proj_errors_rbf)
-        np.save(out_dir_proj+"DART_SART_SART", proj_errors_dart0)
-        np.save(out_dir_proj+"DART_SART_FBP", proj_errors_dart1)
+        np.save(out_dir_proj+"DART", proj_errors_dart0)
         print()
         
         # Number of angles experiments
@@ -105,7 +91,6 @@ def main():
         ang_errors_sirt = []
         ang_errors_rbf = []
         ang_errors_dart0 = []
-        ang_errors_dart1 = []
         for curr_ang in angle_range:
             print("curr_ang mul:", curr_ang)
             n_proj, n_detectors, det_spacing = 50, 512, 1
@@ -118,7 +103,8 @@ def main():
                                                             ang_mul=curr_ang,
                                                             use_gpu=True)
             # SART
-            _, sart_res = DART().SART(vol_geom, 0, projector_id, sino_id, iters, use_gpu=True)
+            _, sart_res = DART().SART(vol_geom, 0, projector_id, sino_id,
+                                        iters, use_gpu=True)
             sart_res[sart_res > 255] = 255
             sart_res[sart_res < 0] = 0
             ang_errors_sart.append(np.abs(phantom - sart_res).mean())
@@ -130,7 +116,8 @@ def main():
             ang_errors_sirt.append(np.abs(phantom - sirt_res).mean())
 
             # FBP
-            _, fbp_res = DART().FBP(vol_geom, 0, projector_id, sino_id, iters, use_gpu=True)
+            _, fbp_res = DART().FBP(vol_geom, 0, projector_id, sino_id, 
+                                    iters, use_gpu=True)
             fbp_res[fbp_res > 255] = 255
             fbp_res[fbp_res < 0] = 0
             ang_errors_rbf.append(np.abs(phantom - fbp_res).mean())
@@ -138,24 +125,12 @@ def main():
             # DART 0
             dart = DART()
             gray_lvls = np.unique(phantom).astype(np.float32) 
-            dart_res = dart(iters=100,
-                        gray_levels=gray_lvls,p=0.9,
+            dart_res = dart(iters=50,
+                        gray_levels=gray_lvls, p=0.85,
                         vol_shape=phantom.shape,
                         projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200,
-                        use_gpu=True)
+                        rec_alg="SART_CUDA", rec_iter=200)
             ang_errors_dart0.append(np.abs(phantom - dart_res).mean())
-
-            """# DART 1
-            dart = DART()
-            gray_lvls = np.unique(phantom).astype(np.float32) 
-            dart_res = dart(iters=100,
-                        gray_levels=gray_lvls,p=0.9,
-                        vol_shape=phantom.shape,
-                        projector_id=projector_id, sino_id=sino_id,
-                        rec_iter=200, rec_algs=("SART", "FBP"), 
-                        use_gpu=True)
-            ang_errors_dart1.append(np.abs(phantom - dart_res).mean())"""
 
             astra.data2d.clear()
             astra.projector.clear()
@@ -164,8 +139,8 @@ def main():
         np.save(out_dir_angles+f"SART_{phantoms}", ang_errors_sart)
         np.save(out_dir_angles+f"SIRT_{phantoms}", ang_errors_sirt)
         np.save(out_dir_angles+f"RBF_{phantoms}", ang_errors_rbf)
-        np.save(out_dir_angles+f"DART_SART_SART_{phantoms}", ang_errors_dart0)
-        np.save(out_dir_angles+f"DART_SART_FBP_{phantoms}", ang_errors_dart1)
+        np.save(out_dir_angles+f"DART_{phantoms}", ang_errors_dart0)
+
 
 if __name__ == "__main__":
     main()
