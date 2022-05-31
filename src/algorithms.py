@@ -159,3 +159,71 @@ class DART():
         # define algorithm
         algorithm_id = astra.algorithm.create(alg_cfg)
         return algorithm_id
+
+    def SART(self, vol_geom, vol_data, projector_id, sino_id, iters=2000, use_gpu=False):
+        """ Simultaneous Algebraic Reconstruction Technique (SART) with
+            randomized scheme. Used from DART as the continious update step.
+        """
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
+        # define SART configuration parameters
+        alg_cfg = astra.astra_dict('SART_CUDA' if use_gpu else 'SART')
+        alg_cfg['ProjectorId'] = projector_id
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = rec_id
+        alg_cfg['option'] = {}
+        alg_cfg['option']['MinConstraint'] = 0
+        alg_cfg['option']['MaxConstraint'] = 255
+        # define algorithm
+        algorithm_id = astra.algorithm.create(alg_cfg)
+        # run the algirithm
+        astra.algorithm.run(algorithm_id, iters)
+        # create reconstruction data
+        rec = astra.data2d.get(rec_id)
+        # constraint the max/min values
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
+        return rec_id, rec
+
+    def SIRT(self, vol_geom, vol_data, sino_id, iters=2000, use_gpu=False):
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
+        # define SIRT config params
+        alg_cfg = astra.astra_dict('SIRT_CUDA' if use_gpu else 'SIRT')
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = rec_id
+        alg_cfg['option'] = {}
+        alg_cfg['option']['MinConstraint'] = 0
+        alg_cfg['option']['MaxConstraint'] = 255
+        # define algorithm
+        alg_id = astra.algorithm.create(alg_cfg)
+        # run the algorithm
+        astra.algorithm.run(alg_id, iters)
+        # create reconstruction data
+        rec = astra.data2d.get(rec_id)
+        # constraint min/max values
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
+        return rec_id, rec
+
+    def FBP(self, vol_geom, vol_data, projector_id, sino_id, iters=2000, use_gpu=False):
+        # create starting reconstruction
+        rec_id = astra.data2d.create('-vol', vol_geom, data=vol_data)
+        # define SART configuration parameters
+        alg_cfg = astra.astra_dict('FBP_CUDA' if use_gpu else 'FBP')
+        alg_cfg['ProjectorId'] = projector_id
+        alg_cfg['ProjectionDataId'] = sino_id
+        alg_cfg['ReconstructionDataId'] = rec_id
+        alg_cfg['option'] = {}
+        alg_cfg['option']['MinConstraint'] = 0
+        alg_cfg['option']['MaxConstraint'] = 255
+        # define algorithm
+        algorithm_id = astra.algorithm.create(alg_cfg)
+        # run the algirithm
+        astra.algorithm.run(algorithm_id, iters)
+        # create reconstruction data
+        rec = astra.data2d.get(rec_id)
+        # constraint the max/min values
+        rec[rec > 255] = 255
+        rec[rec < 0] = 0
+        return rec_id, rec
