@@ -194,21 +194,21 @@ def create_paws(img_size=512, gray_values=[110,120], n=1,
 
         # create images
         image[xv**2 + yv**2 >0.1] = 0
-        image[xv**2 + yv**2 <0.09] = gray_values[0]
+        image[xv**2 + yv**2 <0.09] = 255
         if img_size==256:
-            image[25:231,30:40] = gray_values[1]
-            image[25:231, 216:226] = gray_values[1]
-            image[25:35, 40:216] = gray_values[1]
-            image[221:231, 40:216] = gray_values[1]
-            image[180:210+shift_y,50:80+shift_x] = gray_values[1]
+            image[25:231,30:40] = 255
+            image[25:231, 216:226] = 255
+            image[25:35, 40:216] = 255
+            image[221:231, 40:216] = 255
+            image[180:210+shift_y,50:80+shift_x] = 255
         else: 
-            image[50:462,60:80] = gray_values[1]
-            image[50:462, 432:452] = gray_values[1]
-            image[50:70, 80:432] = gray_values[1]
-            image[442:462, 80:432] = gray_values[1]
-            image[360:420+shift_y,100:160+shift_x] = gray_values[1]
+            image[50:462,60:80] = 255
+            image[50:462, 432:452] = 255
+            image[50:70, 80:432] = 255
+            image[442:462, 80:432] = 255
+            image[360:420+shift_y,100:160+shift_x] = 255
 
-        image[(xv-0.5)**2/0.2+(yv+0.3-noise[0])**2<0.05] = gray_values[0]
+        image[(xv-0.5)**2/0.2+(yv+0.3-noise[0])**2<0.05] = 255
 
         if thresh[0] <7: 
             image[(xv-0.006)**2/0.4+(yv+0.18)**2/0.7<0.01] = 0
@@ -217,6 +217,9 @@ def create_paws(img_size=512, gray_values=[110,120], n=1,
         
         image[(xv-0.17)**2/0.4+(yv+0.1)**2/0.7<0.01] = 0
         image[(xv-0.01)**2/0.7+(yv-0.1)**2/0.7<0.02] = 0
+
+        #fix the fucking pixels == 1
+        image[image == 1] = 0
         
         paws.append(image)
         # save image
