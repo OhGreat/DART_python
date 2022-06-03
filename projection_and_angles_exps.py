@@ -22,7 +22,6 @@ def main():
     for phantoms in phants:
         # input directory
         in_dir = f"phantoms/{phantoms}/"
-
         # output directory
         out_dir_proj = f"results/n_proj/{phantoms}/"
         out_dir_angles = f"results/angle_range/{phantoms}/"
@@ -35,6 +34,7 @@ def main():
         phantom_name = sorted(listdir(in_dir))[0]
         phantom = np.array(Image.open(in_dir+phantom_name), dtype=np.uint8)
         img_width, img_height = phantom.shape
+        print(f"Curr phantom: {phantom_name}")
 
         proj_errors_sart = []
         proj_errors_sirt = []

@@ -8,7 +8,15 @@ class DART():
     def __init__(self, gray_levels, p, rec_shape, 
                 proj_geom, projector_id, sinogram):
         """ Instanciate DART with thw following parameters
+            Parameters:
+                - gray_levels: gray levels known a priori used in the segmentation step.
+                - p: probability of a pixel to not be sampled as a free pixel.
+                - rec_shape: shape of the volume to create as output.
+                - proj_geom: projection geometry to use for the sinogram creation. 
+                - projector_id: reference to the astra toolbox projector used to make the projections.
+                - sinogram: sinogram as numpy matrix
         """
+        
         self.gray_levels = gray_levels
         # defien thresholds for gray levels with start and end values
         self.thresholds = [0] +[(gray_levels[i]+gray_levels[i+1])/2 
@@ -28,20 +36,18 @@ class DART():
     def run(self, iters, p=None, gray_levels=None, 
             rec_alg="SART_CUDA", rec_iter=5):
         """ Parameters:
-                - iters: number of DART iteration to perform
-                - gray_levels: gray levels known a priori used in the segmentation step.
-                - p: probability of a pixel to not be sampled as a free pixel.
-                - vol_shape: shape of the volume to create as output.
-                - projector_id: reference to the astra toolbox projector used to make the projections.
-                - sino_id: reference to the astra toolbox sinogram.
-                - rec_algs: tuple containing the initial and the iterated 
+                - iters: (int) number of DART iteration to perform
+                - p: (float) probability of a pixel to not be sampled as a free pixel.
+                - gray_levels: (list) gray levels known a priori used in the segmentation step.
+                - rec_algs: (string) tuple containing the initial and the iterated 
                     reconstruction algorithms to use.
+                - rec_iters: (int) number of iterations of the reconstruction subrutine.
             Output:
-                returns the reconstructed phantom 
+                (np.array) returns the reconstructed phantom 
                 of shape = vol_shape, as a numpy 2D array
         """
         # to run experiments on different gray values
-        # and fixed pixel probabilities 
+        # and fixed pixel probabilities
         # without reinstanciating DART
         if p is not None:
             self.p = p
@@ -88,6 +94,13 @@ class DART():
     def run_rec_alg(self, rec, mask=None,
                     alg="SART_CUDA", iters= 5):
         """ Reconstruction with ARM techniques.
+            Parameters:
+                - rec: initial reconstructed image. (np.array)
+                - mask: mask defining the pixels to update, (np.array)
+                - alg: name of the reconstruction algorithm to use. (string)
+                - iters: number of reconstruction iterations to perform. (int)
+            Output:
+                - reconstructed image. (np.array)
         """
         if mask is not None:
             # mask free pixels for the fixed pixel sinogram
@@ -119,6 +132,8 @@ class DART():
         algorithm_id = astra.algorithm.create(alg_cfg)
         # run the algorithm
         astra.algorithm.run(algorithm_id, iters)
+        # free memory
+        astra.algorithm.delete(algorithm_id)
         # return the reconstructed values
         return astra.data2d.get(rec_id)
 
