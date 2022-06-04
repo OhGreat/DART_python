@@ -8,11 +8,11 @@ from src.projections import project_from_2D
 
 def main():
     # total iterations for comparison algorithms
-    iters = rec_alg_iters
+    iters = 10000
     # dart parameters
-    dart_iters = 350
-    rec_alg_iters = 10
-    p_fixed = 0.85
+    dart_iters = 10
+    rec_alg_iters = 1000
+    p_fixed = 0.9
     # phantom family
     phants_fam = ["semilunars", "paws", "aliens", "clouds"]
     # define number of projections and angles
