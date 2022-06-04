@@ -1,5 +1,4 @@
 from copy import deepcopy
-from tkinter.messagebox import NO
 import numpy as np
 import astra
 from scipy.ndimage import gaussian_filter
@@ -16,15 +15,15 @@ class DART():
                 - projector_id: reference to the astra toolbox projector used to make the projections.
                 - sinogram: sinogram as numpy matrix
         """
-        
         self.gray_levels = gray_levels
-        # defien thresholds for gray levels with start and end values
+        # define thresholds for gray levels with start and end values
         self.thresholds = [0] +[(gray_levels[i]+gray_levels[i+1])/2 
                             for i in range(len(gray_levels)-1) ] + [255]
         self.p = p
         self.c, self.probs = [0,1], [self.p, 1-self.p]
         self.rec_shape = rec_shape
         self.vol_geom = astra.creators.create_vol_geom(self.rec_shape)
+        # calculated in advance for efficiency
         self.all_neighbours_idx = [[self.pixel_neighborhood(rec_shape, i,j) 
                                 for i in range(self.rec_shape[0])]
                                     for j in range(self.rec_shape[1])]
@@ -190,7 +189,6 @@ class DART():
                 - p: probability that a pixel is not sampled 
                     as a non boundary free pixel
         """
-        
         free_pixels = np.random.choice(a=self.c, 
                                     size=self.rec_shape, 
                                     p=self.probs).astype(np.uint8)

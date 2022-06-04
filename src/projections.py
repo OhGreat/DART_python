@@ -38,6 +38,7 @@ def project_from_2D(phantom_id, vol_geom, n_projections,
             sinogram = np.random.poisson(sinogram * noise_factor) / noise_factor
             sinogram[sinogram > 1.1] = 1.1
             sinogram /= 1.1
+            sino_id = astra.data2d.create('-sino', proj_geom, sinogram)
         # Save projections as images, if directory has been defined.
         if save_dir != None:
             if save_dir[-1] != '/':

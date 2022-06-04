@@ -9,17 +9,17 @@ from src.phantom_creator import *
 
 def main():
     # Main parameters
-    n_projections = 7
+    n_projections = 30
     n_detectors = 512
     det_spacing = 1
     noise_factor = None
-    dart_iters = 200
-    p = 0.85
-    rec_alg = 'FBP_CUDA'
-    rec_iters = 2000
+    dart_iters = 10
+    p = 0.9
+    rec_alg = 'SART_CUDA'
+    rec_iters = 1000
 
     # open phantom
-    img = np.array(Image.open("phantoms/clouds/cloud_0.png"), dtype=np.uint8)
+    img = np.array(Image.open("phantoms/paws/paw_0.png"), dtype=np.uint8)
     img_width, img_height = img.shape
     gray_lvls = np.unique(img).astype(np.float16)
     img_width, img_height = img.shape
@@ -55,7 +55,7 @@ def main():
 
     # run SART for comparison
     _, sart_res = SART(vol_geom, 0, projector_id, 
-                    sino_id, 100000, True)
+                    sino_id, 10000, True)
 
     # print results
     print("DART abs mean pixel error:",np.abs(img - dart_res).mean())
