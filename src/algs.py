@@ -17,8 +17,7 @@ class DART():
         """
         self.gray_levels = gray_levels
         # define thresholds for gray levels with start and end values
-        self.thresholds = [0] +[(gray_levels[i]+gray_levels[i+1])/2 
-                            for i in range(len(gray_levels)-1) ] + [255]
+        self.thresholds = self.update_gray_thresholds()
         self.p = p
         self.c, self.probs = [0,1], [self.p, 1-self.p]
         self.rec_shape = rec_shape
@@ -136,6 +135,10 @@ class DART():
         # return the reconstructed values
         return astra.data2d.get(rec_id)
 
+    def update_gray_thresholds(self):
+        return [0] + [(self.gray_levels[i]+self.gray_levels[i+1])/2 
+                        for i in range(len(self.gray_levels)-1) ] + [255]
+
     def segment(self, img):
         """ Segments the input image to obtain an image with
             only the gray values specified. 
@@ -168,7 +171,7 @@ class DART():
                 - img: define the input image as a numpy array
         """
         # initialize output mask to 0
-        bool_mask = np.full(fill_value=0, shape=img.shape[:2], dtype=np.uint8)
+        bool_mask = np.full(fill_value=False, shape=img.shape[:2], dtype=np.bool8)
         for x in range(img.shape[0]):
             for y in range(img.shape[1]):
                 pixel = img[x,y]
@@ -176,7 +179,7 @@ class DART():
                 neighbours = [img[i] for i in self.all_neighbours_idx[x][y]]
                 # update pixel value
                 if np.any(neighbours != pixel):
-                    bool_mask[x,y] = 1
+                    bool_mask[x,y] = True
         return bool_mask
 
     def free_pixels(self):
@@ -191,7 +194,7 @@ class DART():
         """
         free_pixels = np.random.choice(a=self.c, 
                                     size=self.rec_shape, 
-                                    p=self.probs).astype(np.uint8)
+                                    p=self.probs).astype(np.bool8)
         return free_pixels
 
 def SART(vol_geom, vol_data, projector_id, sino_id, iters=2000, use_gpu=False):

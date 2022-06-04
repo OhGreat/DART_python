@@ -22,13 +22,6 @@ def main():
     for phantoms in phants_fam:
         # input directory
         in_dir = f"phantoms/{phantoms}/"
-        # output directory
-        out_dir_proj = f"results/n_proj/{phantoms}/"
-        out_dir_angles = f"results/angle_range/{phantoms}/"
-        if not exists(out_dir_proj):
-                makedirs(out_dir_proj)
-        if not exists(out_dir_angles):
-                makedirs(out_dir_angles)
     
         for phantom_name in sorted(listdir(in_dir)):
             # output directory

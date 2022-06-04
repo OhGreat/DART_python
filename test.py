@@ -19,7 +19,8 @@ def main():
     rec_iters = 1000
 
     # open phantom
-    img = np.array(Image.open("phantoms/paws/paw_0.png"), dtype=np.uint8)
+    img = np.array(Image.open("phantoms/semilunars/semilunar_0.png"),
+                    dtype=np.uint8)
     img_width, img_height = img.shape
     gray_lvls = np.unique(img).astype(np.float16)
     img_width, img_height = img.shape
