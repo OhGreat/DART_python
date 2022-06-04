@@ -23,7 +23,7 @@ class DART():
         self.rec_shape = rec_shape
         self.vol_geom = astra.creators.create_vol_geom(self.rec_shape)
         # calculated in advance for efficiency
-        self.all_neighbours_idx = [[self.pixel_neighborhood(rec_shape, i,j) 
+        self.all_neighbours_idx = [[self.pixel_neighborhood(rec_shape, i,j)
                                 for i in range(self.rec_shape[0])]
                                     for j in range(self.rec_shape[1])]
         self.proj_geom = proj_geom
@@ -136,6 +136,9 @@ class DART():
         return astra.data2d.get(rec_id)
 
     def update_gray_thresholds(self):
+        """ Updates algorithms' thresholds for the currently
+            defined gray values.
+        """
         return [0] + [(self.gray_levels[i]+self.gray_levels[i+1])/2 
                         for i in range(len(self.gray_levels)-1) ] + [255]
 
@@ -159,7 +162,8 @@ class DART():
                         for i in range(x-1, x+2) 
                             if i > -1 and i < img_shape[0]
                                 for j in range(y-1, y+2) 
-                                    if j > -1 and j < img_shape[1] ]
+                                    if j > -1 and j < img_shape[1] 
+                                        and (x != i and y != j) ]
         return neighbours
 
     def boundary_pixels(self, img):

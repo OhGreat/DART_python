@@ -73,7 +73,8 @@ Parameters:
 - `vol_geom`: geometry of the output image. Used to define the number of detectors as the first dimension of the vol_geom.
 - `n_projections`: is an integer value representing the number of projections as the number of angles to make measurements from.
 - `detector_spacing`: defines the size of the pixel.
-- `apply_noise`: boolean value that adds Poisson distributed noise to the image when set to True. False by default.
+- `angles`: angles to use for the measurements. (np.array)
+- `noise_factor`: factor that adds Poisson distributed noise to the image, when defined. 
 - `save_dir`: string representing the directory to save png images that represent the measurements. Images won't be saved if this parameter is not set.
 - `use_gpu`: creates a projector that can use GPU  
 
@@ -88,53 +89,62 @@ Output:
 All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions  available in the library will follow in this section.
  
 #### DART algorithm
-DART can be imported and used in the following way:
+DART can be used in the following way:
 ```python
-from reconstruction_algs import DART
-dart = DART()
-dart_res = dart(iters=50,
-            gray_levels=[0,150,255],p=0.85,
-            vol_shape=(256,256),
-            projector_id=projector_id, sino_id=sino_id,
-            SART_iter=200, use_gpu=True)
+from algs import DART
+dart = DART(gray_levels=[0, 40, 150], p=0.85, rec_shape=img.shape,
+            proj_geom=proj_geom, projector_id=projector_id,
+            sinogram=sinogram)
+rec = dart.run(iters=10, rec_alg="SART_CUDA", rec_iter= 1000)
+
 ```
-Parameters:
-- `iters`: number of DART iteration to perform
-- `gray_levels`: gray levels known *a priori* used in the segmentation step.
-- `p`: probability of a pixel to not be sampled as a free pixel.
-- `vol_shape`: shape of the volume to create as output.
+Instance parameters:
+- `gray_levels`: gray levels known *a priori* used in the segmentation step. (list)
+- `p`: probability of a pixel to not be sampled as a free pixel. (float)
+- `rec_shape`: shape of the volume to create as output. (tuple)
+- `proj_geom`: astra-toolbox projection geometry used for the measurements.
 - `projector_id`: reference to the astra toolbox projector used to make the projections. (Can be created with the **project_from_2D** fucntion described above)
-- `sino_id`: reference to the astra toolbox sinogram. (Can also be created with the **project_from_2D** fucntion described above)
+- `sinogram`: sinorgam of measurements. (np.array) (Can be created with the **project_from_2D** fucntion described above)
+
+Run parameters:
+- `iters`: number of DART iteration to perform. (int)
+- `p`: as above, can be used to run multiple experiments without reistanciating DART.
+- `gray_levels`:same as above.
+- `rec_alg`: algebraic reconstruction algorithm to use: can be 'SART', 'SIRT' or 'FBP'. To run the GPU implementations just add '_CUDA' to the algorithn name (e.g. 'SART_CUDA').
+- `rec_iter`: number of reconstruction subrutine iterations to run.
 
 Output:
-- returns the generated image in the form of numpy array.
+- returns the reconstructed image. (np.array)
 
 ### Segmentation
-The method `segment` can be used to segment an image, given the range of gray values:
+The method `segment` can be used to segment an image at the defined gray values, once DART has been instanced as defined above.
 ```python
-segmented_img = dart.segment(img, gray_levels)
+new_gray_vals = [0, 130, 240]
+dart.gray_values = new_gray_vals
+dart.update_gray_thresholds()
+segmented_img = dart.segment(img)
 ```
 Parameters:
 - `img`: is the grayscale input phantom to segment as a 2D numpy matrix.
 - `gray_levels` : array of gray levels to compute the thresholds for the segmentation from.
 
 Output:
-- returns the segmented image as a numpy array
+- returns the segmented image. (np.array)
 
 ### Pixel neighborhood
 To calculate the indexes of neighbours of a specific pixel, you can use the method `pixel_neighborhood` as below:
 ```python
-neighbours = dart.pixel_neighborhood(img, x, y)
+neighbours = dart.pixel_neighborhood(img_shape, x, y)
 ```
 Parameters:
-- `img` : is as usual the phantom in the form of 2D numpy matrix.
-- `x,y`: are the coordinates of the pixel in 
+- `img_shape` : is the shape of the reconstructed image.
+- `x,y`: are the coordinates of the pixel to calculate the neighbours for.
 
 Output:
-- The method returns a 2D array containing arrays of the x,y coordinates of the neighbours.
+- The method returns a list with all the indexes of the neighbours.
 
 ### Boundary pixels
-To calculate the boundary pixels of the phantom image, the method `boundary_pixels` takes as input the phantom *as a numpy array*, and calculates the boundary pixels with the help of the `pixel_neighborhood` method described above. You can use it as follows:
+To calculate the boundary pixels of the phantom image, the method `boundary_pixels` takes as input the reconstructed image and calculates the boundary pixels with the help of the `pixel_neighborhood` method described above. You can use it as follows, after having created a DART instance:
 ```python
 b_pixels = dart.boundary_pixels(img):
 ```
@@ -147,25 +157,24 @@ Output:
 ### Free pixels
 To calculate the free pixels, the following method is available:
 ```python
-free_pixels = dart.free_pixels(img_shape, p)
+free_pixels = dart.free_pixels()
 ```
-Parameters:
-- `img_shape` : shape of the original image.
-- `p` : defines the probability for a pixel to not be sampled as a non-boudary free pixel.
+The method takes into consideration the **p** value defined in the DART instance to define the free pixels.
 
 Output:
-- The output `free_pixels` is a binary 2D matrix, where the True values represent if a given pixel was sampled as a free pixel.
+- The output `free_pixels` is a binary 2D np.array, where the True values represent the free pixels.
 
 ### Algebraic Reconstruction
-For the continous reconstruction step, various algorithms have been implemented. Specifically, **SART**, **SIRT**, **ART** and **FBP** are available for experimentation.
+For the continous reconstruction step of DART, various algorithms have been implemented. Specifically, **SART**, **SIRT** and **FBP** are available for experimentation. You can call the functions detatched from DART as below:
 
 The following example demostrates how to use SART:
 ```python
-sart_res_id, sart_res = DART().SART(vol_geom, projector_id, sino_id, iters, use_gpu=True)
+sart_res_id, sart_res = SART(vol_geom, vol_data, projector_id, sino_id, iters, use_gpu=True)
 ```
 
 Parameters:
 - `vol_geom`: represents the volume geometry for the output.
+- `vol_data`: starting values to use for the reconstructed image.
 - `projector_id`: specifies the projector to use for the measurements.
 - `sino_id`: is the sinogram id of the projections.
 - `iters`: number of dart iterations to run.
