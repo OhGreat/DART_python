@@ -18,7 +18,7 @@ def project_from_2D(phantom_id, vol_geom, n_projections,
                 - noise_factor:
                 - save_dir: path of the directory to save image representation 
                     of projections, when defined. To be passed as a string.
-                - use_gpu:
+                - use_gpu: (boolean) set to True to use gpu.
 
             Returns:
                 projector_id, sinogram_id and sinogram matrix
@@ -35,9 +35,7 @@ def project_from_2D(phantom_id, vol_geom, n_projections,
         sino_id, sinogram = astra.creators.create_sino(phantom_id, proj_id)
         # Apply Poisson noise.
         if noise_factor != None:
-            sinogram = np.random.poisson(sinogram * noise_factor) / noise_factor
-            sinogram[sinogram > 1.1] = 1.1
-            sinogram /= 1.1
+            sinogram += np.random.poisson(lam=noise_factor, size=sinogram.shape)
             sino_id = astra.data2d.create('-sino', proj_geom, sinogram)
         # Save projections as images, if directory has been defined.
         if save_dir != None:

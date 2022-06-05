@@ -16,8 +16,8 @@ def main():
     # phantom family
     phants_fam = ["semilunars", "paws", "aliens", "clouds"]
     # define number of projections and angles
-    n_projections = [2, 4, 6, 8, 10, 20, 30, 50]
-    angle_range = [10, 16, 20, 30, 50, 90, 100, 120, 150, 180]
+    n_projections = [2, 4, 6, 8, 10, 12, 14, 16]
+    angle_range = [10, 20, 40, 60, 100, 120, 150, 180]
     
     for phantoms in phants_fam:
         # input directory
@@ -25,7 +25,7 @@ def main():
     
         for phantom_name in sorted(listdir(in_dir)):
             # output directory
-            out_dir_proj = f"results/n_proj/{phantoms}/{phantom_name}"
+            out_dir_proj = f"results/n_proj/{phantoms}/{phantom_name}/"
             out_dir_angles = f"results/angle_range/{phantoms}/{phantom_name}/"
             if not exists(out_dir_proj):
                     makedirs(out_dir_proj)
@@ -118,10 +118,10 @@ def main():
 
             for curr_ang in angle_range:
                 print("curr angle:", curr_ang)
-                n_proj, n_detectors, det_spacing = 10, 512, 1
+                n_proj, n_detectors, det_spacing = 14, 512, 1
                 vol_geom = astra.creators.create_vol_geom([img_width,img_height])
                 phantom_id = astra.data2d.create('-vol', vol_geom, data=phantom)
-                angles = np.linspace(0, curr_ang, n_proj)
+                angles = np.linspace(0, np.pi*(curr_ang/180), n_proj)
                 projector_id, sino_id, sinogram = project_from_2D(phantom_id=phantom_id,
                                                                 vol_geom=vol_geom,
                                                                 n_projections=n_proj,

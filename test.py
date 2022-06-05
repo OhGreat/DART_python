@@ -3,16 +3,17 @@ import time
 from PIL import Image
 from src.algs import *
 from src.projections import *
-from src.phantom_creator import *
+from src.phantoms import *
 
 
 
 def main():
     # Main parameters
-    n_projections = 30
+    n_projections = 14
     n_detectors = 512
     det_spacing = 1
-    noise_factor = None
+    ang_range = np.pi*(180/180)
+    noise_factor = 0
     dart_iters = 10
     p = 0.9
     rec_alg = 'SART_CUDA'
@@ -33,7 +34,7 @@ def main():
     vol_geom = astra.creators.create_vol_geom([img_width,img_height])
     phantom_id = astra.data2d.create('-vol', vol_geom, data=img)
     # make measurements
-    angles = np.linspace(0, np.pi, n_projections)
+    angles = np.linspace(0, ang_range, n_projections)
     projector_id, sino_id, sinogram = project_from_2D(phantom_id=phantom_id,
                                                     vol_geom=vol_geom,
                                                     n_projections=n_projections,
@@ -42,6 +43,7 @@ def main():
                                                     angles=angles,
                                                     noise_factor=noise_factor,
                                                     use_gpu=True)
+    print(sinogram.max(), sinogram.min())
 
     proj_geom = astra.create_proj_geom('parallel', det_spacing, 
                                             n_detectors, angles)
