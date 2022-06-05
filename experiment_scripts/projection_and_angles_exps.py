@@ -1,9 +1,12 @@
 import astra
 import numpy as np
 from PIL import Image
-from src.algs import *
 from os.path import exists
 from os import listdir, makedirs
+import sys
+sys.path.append("..")
+sys.path.append("../src")
+from src.algs import *
 from src.projections import project_from_2D
 
 def main():
@@ -21,12 +24,12 @@ def main():
     
     for phantoms in phants_fam:
         # input directory
-        in_dir = f"phantoms/{phantoms}/"
+        in_dir = f"../phantoms/{phantoms}/"
     
         for phantom_name in sorted(listdir(in_dir)):
             # output directory
-            out_dir_proj = f"results/n_proj/{phantoms}/{phantom_name}/"
-            out_dir_angles = f"results/angle_range/{phantoms}/{phantom_name}/"
+            out_dir_proj = f"../results/n_proj/{phantoms}/{phantom_name}/"
+            out_dir_angles = f"../results/angle_range/{phantoms}/{phantom_name}/"
             if not exists(out_dir_proj):
                     makedirs(out_dir_proj)
             if not exists(out_dir_angles):

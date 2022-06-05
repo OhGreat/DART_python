@@ -1,0 +1,5 @@
+- generate images of reconstructions
+
+- generate images of reconstruction with noise
+- generate images of reconstruction for limited ang range
+- generate images of reconstruction for number of projections
