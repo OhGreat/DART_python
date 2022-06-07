@@ -24,8 +24,8 @@ class DART():
         self.vol_geom = astra.creators.create_vol_geom(self.rec_shape)
         # calculated in advance for efficiency
         self.all_neighbours_idx = [[self.pixel_neighborhood(rec_shape, i,j)
-                                for i in range(self.rec_shape[0])]
                                     for j in range(self.rec_shape[1])]
+                                        for i in range(self.rec_shape[0])]
         self.proj_geom = proj_geom
         self.projector_id = projector_id
         self.sinogram = sinogram
@@ -162,8 +162,7 @@ class DART():
                         for i in range(x-1, x+2) 
                             if i > -1 and i < img_shape[0]
                                 for j in range(y-1, y+2) 
-                                    if j > -1 and j < img_shape[1] 
-                                        and (x != i and y != j) ]
+                                    if j > -1 and j < img_shape[1] ] # and (x != i & y != j)
         return neighbours
 
     def boundary_pixels(self, img):

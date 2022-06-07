@@ -3,6 +3,25 @@ from PIL import Image
 from os import makedirs
 from os.path import exists
 
+def create_phantoms(phantoms="semilunars",img_size=512, gray_values=[80,120,180], n=1, 
+                        overlap=False, seed=None, img_name=None):
+    generated = []
+    if phantoms == "semilunars":
+        generated = create_semilunars(img_size=img_size, gray_values=gray_values,
+                                    n=n, overlap=overlap, seed=seed, img_name=img_name)
+    elif phantoms == "aliens":
+        generated = create_aliens(img_size=img_size, gray_values=gray_values,
+                                    n=n, overlap=overlap, seed=seed, img_name=img_name)
+    elif phantoms == "clouds":
+        generated = create_clouds(img_size=img_size, gray_values=gray_values,
+                                    n=n, overlap=overlap, seed=seed, img_name=img_name)
+    elif phantoms == "paws":
+        generated = create_paws(img_size=img_size, gray_values=gray_values,
+                                    n=n, overlap=overlap, seed=seed, img_name=img_name)
+    else:
+        exit("please choose a valid class.")
+    return generated
+
 def create_image(x,y):
     """ Basic function required to create phantoms
     """
@@ -55,7 +74,7 @@ def create_semilunars(img_size=512, gray_values=[80,120,180], n=1,
         if not exists('data/'):
             makedirs('data/')
     # create phantoms
-    senilunars = []
+    semilunars = []
     for i in range(n):
         image, xv, yv = create_image(x,y)
         # define noise for randomization
@@ -74,17 +93,17 @@ def create_semilunars(img_size=512, gray_values=[80,120,180], n=1,
             image[(xv-0.1+noise[0])**2 + (yv-0.1+noise[0])**2 <0.19] = gray_values[2]
             image[(xv-0.1+noise[0])**2 + (yv-0.1+noise[0])**2 <0.11] = gray_values[1]
             image[(xv-0.2+noise[0])**2 + (yv-0.2+noise[0])**2 <0.02] = gray_values[2]
-        senilunars.append(image.astype(np.uint8))
+        semilunars.append(image.astype(np.uint8))
         # save image
         if img_name != None:
             Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png")
-    return senilunars
+    return semilunars
 
 
 
 
-def create_alien(img_size=512, gray_values=[40,80,100], n=1, 
-                        overlap=False, seed=None, img_name=None):
+def create_aliens(img_size=512, gray_values=[40,80,100], n=1, 
+                overlap=False, seed=None, img_name=None):
     """ Create alien like phantoms.
 
         Input:
@@ -140,14 +159,14 @@ def create_alien(img_size=512, gray_values=[40,80,100], n=1,
             image[(xv-0.3+noise[0])**2/0.2+(yv+0.01-noise[0])**2<0.05] = gray_values[1]
             image[(xv-0.3+noise[0])**2/0.2+(yv+0.1-noise[0])**2<0.01] = gray_values[0]
             image[(xv-0.01-noise[0])**2+(yv-0.6+noise[0])**2/0.025<0.02] = gray_values[0] 
-        aliens.append(image)
+        aliens.append(image.astype(np.uint8))
         # save image
         if img_name != None:
             Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png") 
     return aliens
 
-def create_paws(img_size=512, gray_values=[110,120], n=1,
-                                 seed=None, img_name=None):
+def create_paws(img_size=512, gray_values=[80,120,180], n=1, 
+                        overlap=False, seed=None, img_name=None):
     """ Create paw like phantoms.
 
         Input:
@@ -221,14 +240,15 @@ def create_paws(img_size=512, gray_values=[110,120], n=1,
         #fix the fucking pixels == 1
         image[image == 1] = 0
         
-        paws.append(image)
+        paws.append(image.astype(np.uint8))
         # save image
         if img_name != None:
             Image.fromarray(image.astype(np.uint8)).save(f"{img_name}_{i}.png") 
     return paws
 
 
-def create_clouds(img_size=512, n=1, seed=None, img_name=None):
+def create_clouds(img_size=512, gray_values=[80,120,180], n=1, 
+                        overlap=False, seed=None, img_name=None):
     """ Create cloud like phantoms.
 
         Input:
@@ -297,7 +317,7 @@ def create_clouds(img_size=512, n=1, seed=None, img_name=None):
             image[(xv-0.4)**2+(yv-0.3)**2/0.4<0.02] = 0
             image[(xv-0.1)**2+(yv-0.1)**2/0.4<0.02] = 0
 
-        clouds.append(image)
+        clouds.append(image.astype(np.uint8))
 
         # save image
         if img_name != None:

@@ -41,12 +41,13 @@ Usage of the framework for each of this tasks is described in detail in the foll
 ### Generating phantoms
 
 #### Semilunar phantoms
-To generate semilunar like phantoms you can use the `create_semilunar` function. It can be imported from `phantom_creator.py` and used as below:
+To generate semilunar like phantoms you can use the `create_phantoms` function. It can be imported from `phantom_creator.py` and used as below:
 ```python
-from phantom_creator import create_semilunars
-phantom_list = create_semilunars(img_size=512, gray_values=[255, 200, 150], n=3, overlap=False, seed=None, img_name="dir/to/save/filename")
+from phantom_creator import create_phantoms
+phantom_list = create_phantoms(phantoms="semilunars",img_size=512, gray_values=[255, 200, 150], n=3, overlap=False, seed=None, img_name="dir/to/save/filename")
 ``` 
 Parameters:
+- `phantoms`: (string), name of the phantom family. Shoud be one between "semilunars", "aliens", "clouds", "paws".
 - `img_size`: should be an integer of value 256 or 512 and represents the size of the phantoms to generate.
 - `gray_values`: list of three integers between 0 and 255 representing the intensities to use for the various phantom layers.
 - `n`: integer representing the number of phantoms to generate.
@@ -57,7 +58,7 @@ Parameters:
                 it will be created as a png by default.
 
 Output:
-- python list of phantoms. (Phantoms as numpy arrays)
+- python list of phantoms. (Phantoms as numpy arrays of type np.uint8)
 
 ### Generating projections
 
@@ -73,7 +74,7 @@ Parameters:
 - `vol_geom`: geometry of the output image. Used to define the number of detectors as the first dimension of the vol_geom.
 - `n_projections`: is an integer value representing the number of projections as the number of angles to make measurements from.
 - `detector_spacing`: defines the size of the pixel.
-- `angles`: angles to use for the measurements. (np.array)
+- `angles`: angles to use for the measurements. (np.array, should be created as a np.linspace of values)
 - `noise_factor`: factor that adds Poisson distributed noise to the image, when defined. 
 - `save_dir`: string representing the directory to save png images that represent the measurements. Images won't be saved if this parameter is not set.
 - `use_gpu`: creates a projector that can use GPU  
@@ -92,9 +93,11 @@ All the steps required to run the DART algorithm have been broken down and can b
 DART can be used in the following way:
 ```python
 from algs import DART
+# create DART instance
 dart = DART(gray_levels=[0, 40, 150], p=0.85, rec_shape=img.shape,
             proj_geom=proj_geom, projector_id=projector_id,
             sinogram=sinogram)
+# run DART algorithm
 rec = dart.run(iters=10, rec_alg="SART_CUDA", rec_iter= 1000)
 
 ```
@@ -114,13 +117,14 @@ Run parameters:
 - `rec_iter`: number of reconstruction subrutine iterations to run.
 
 Output:
-- returns the reconstructed image. (np.array)
+- (np.array), returns the reconstructed image.
 
 ### Segmentation
 The method `segment` can be used to segment an image at the defined gray values, once DART has been instanced as defined above.
 ```python
 new_gray_vals = [0, 130, 240]
 dart.gray_values = new_gray_vals
+# function to update gray values thresholds
 dart.update_gray_thresholds()
 segmented_img = dart.segment(img)
 ```
@@ -149,23 +153,23 @@ To calculate the boundary pixels of the phantom image, the method `boundary_pixe
 b_pixels = dart.boundary_pixels(img):
 ```
 Parameters:
-- `b_pixels`: is the output given as a 2D binary mask of the image, where True values represent that the given pixel is a boundary pixel.
+- `img`: (2D np.array), image to calculate boundary pixels for.
 
 Output:
-- numpy array of boundary pixels with respect to coordinates given.
+- (np.array), mask of boundary pixels.
 
 ### Free pixels
 To calculate the free pixels, the following method is available:
 ```python
 free_pixels = dart.free_pixels()
 ```
-The method takes into consideration the **p** value defined in the DART instance to define the free pixels.
+The method takes into consideration the **p** value defined in the DART instance to calculate the free pixels.
 
 Output:
 - The output `free_pixels` is a binary 2D np.array, where the True values represent the free pixels.
 
-### Algebraic Reconstruction
-For the continous reconstruction step of DART, various algorithms have been implemented. Specifically, **SART**, **SIRT** and **FBP** are available for experimentation. You can call the functions detatched from DART as below:
+## Algebraic Reconstruction Algorithms
+For the continous reconstruction step of DART, various algorithms have been implemented with the ASTRA-toolbox. Specifically, **SART**, **SIRT** and **FBP** are available for experimentation. You can call the functions detatched from DART as below:
 
 The following example demostrates how to use SART:
 ```python
