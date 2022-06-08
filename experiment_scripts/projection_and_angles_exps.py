@@ -19,8 +19,8 @@ def main():
     # phantom family
     phants_fam = ["semilunars", "paws", "aliens", "clouds"]
     # define number of projections and angles
-    n_projections = [2, 4, 6, 8, 10, 12, 14, 16]
-    angle_range = [10, 20, 40, 60, 100, 120, 150, 180]
+    n_projections = [2, 4, 6, 8, 10, 12, 14, 16, 20]
+    angle_range = [10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 180]
     
     for phantoms in phants_fam:
         # input directory

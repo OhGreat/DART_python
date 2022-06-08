@@ -2,29 +2,11 @@ import numpy as np
 from os import listdir
 import matplotlib.pyplot as plt
 
-def main():
-    res_path = "results/angle_range/clouds"
-    labels = ["DART_fbp", "DART_sart", "DART_sirt", "FBP", "SART", "SIRT"]
-    tick_labels = [10, 20, 40, 60, 100, 120, 150, 180]
-    #tick_labels = np.round([(label/53418)*100 for label in tick_labels],1)
-
-    title="Effect of angle range on cloud phantoms"
-    xlabel="Angle range"
-    ylabel="Mean Absolute Pixel Error"
-    ylim=100
-    save_name= "plots_for_report/temp.png"
-    
-    plot_results(res_dir=res_path, labels=labels, 
-                tick_labels=tick_labels,
-                title=title, xlabel=xlabel, ylabel=ylabel,
-                ylim=ylim, save_name=save_name)
-
-
 def plot_results(res_dir, labels=None, tick_labels=None,
                 title=None, use_log=False, 
                 xlabel=None, ylabel=None, ylim=50,
-                save_name="plots_for_report/temp.png"):
-    """ Creates a plot for experiments, given the file structure:
+                save_name=None):
+    """ Creates a plot of the experiments, given the file structure:
             - res_path/
                 -- exp_0/
                     --- alg_0.npy
@@ -60,7 +42,6 @@ def plot_results(res_dir, labels=None, tick_labels=None,
                     continue
                 if '.npy' in filename:
                     curr_alg_errs.append(np.load(curr_dir+filename))
-
         # define values to plot
         means = np.mean(curr_alg_errs, axis=0)
         maxs = np.max(curr_alg_errs, axis=0)
@@ -71,7 +52,6 @@ def plot_results(res_dir, labels=None, tick_labels=None,
             mins = np.log(mins)
         # debug print
         print(alg_names[i])
-
         # plotting styles
         if alg_names[i] == "RBF":
             alg_names[i] = "FBP"
@@ -91,7 +71,6 @@ def plot_results(res_dir, labels=None, tick_labels=None,
                 linewidth=5)
         # fill values between min/max
         plt.fill_between(range(len(means)), mins, maxs, alpha=0.2)
-
         # update control params
         curr_alg_errs = []
         counter += 1
@@ -105,7 +84,5 @@ def plot_results(res_dir, labels=None, tick_labels=None,
     if ylim:
         plt.ylim([0, ylim])
     plt.margins(x=0, y=0)
-    plt.savefig(save_name)
-
-if __name__ == "__main__":
-    main()
+    if save_name is not None:
+        plt.savefig(save_name)

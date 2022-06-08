@@ -13,7 +13,8 @@ The DART algorithm alternates between continuous and discrete reconstruction ste
     <ul>
         <li><a href="#generating-phantoms">Generationg phantoms</a></li>
         <li><a href="#generating-projections">Generating projections</a></li>
-        <li><a href="#running-dart">Running DART</a></li>
+        <li><a href="#dart-and-substeps">DART & substeps</a></li>
+        <li><a href="#algebraic-reconstruction-algorithms">Algebraic Reconstruction Algorithms</a></li>
     </ul>
     <li><a href="#examples-and-results">Examples & Results</a></li>
     <li><a href="#issues">Issues</a></li>
@@ -27,10 +28,10 @@ The DART algorithm alternates between continuous and discrete reconstruction ste
 
 - `numpy`
 - `Pillow`
-- `astra-toolbox` : required to create phantoms and projections, documentation is available <a href="https://www.astra-toolbox.com/">here</a>.
+- `astra-toolbox` : documentation is available <a href="https://www.astra-toolbox.com/">here</a>.
 
 ## Usage
-To run DART, data *(in the form of phantoms)* and measurements *(in the form of projections and detector values)* need to be artificially constructed. 
+To run DART, data *(in the form of phantoms)* and measurements *(in the form of projections)* need to be artificially constructed. 
 Therefore, three main wrappers have been created around the code to solve the following tasks:
 - phantom creation
 - projection and measurements acquisition
@@ -86,7 +87,7 @@ Output:
 ***to be added***
 
 
-### Running DART
+### DART and substeps
 All the steps required to run the DART algorithm have been broken down and can be used separately. A detailed desctiption for the usage of all the functions  available in the library will follow in this section.
  
 #### DART algorithm
@@ -188,8 +189,7 @@ Output:
 - The algorithm will return `sart_res_id` which is the astra-toolbox reference to the reconstructed phantom, and `sart_res`, a numpy array with the actual values of the reconstructed phantom.  
 
 ## Examples and Results
-
-***to be added***
+Examples on how to use the repository are available in the notebook examples under the `notebook_examples` directory. To run experiments on various algorithms and measurement configurations you can check the examples in the `experiment_scripts` directory.
 
 ## Issues
 If you encounter any problems while using the framework you can notify us by opening an issue here: https://github.com/OhGreat/DART_python/issues
