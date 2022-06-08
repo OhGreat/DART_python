@@ -31,6 +31,11 @@ def plot_results(res_dir, labels=None, tick_labels=None,
     counter = 0
     # iterate over each algorithm
     for i in range(n_algs):
+        found = False
+        for label in labels:
+            if label[0] in alg_names[i]:
+                found = True
+        if not found: continue
         curr_alg_errs = []
         # iterate over each experiment
         for curr_dir in family_subdirs:
@@ -50,8 +55,6 @@ def plot_results(res_dir, labels=None, tick_labels=None,
             means = np.log(means)
             maxs = np.log(maxs)
             mins = np.log(mins)
-        # debug print
-        print(alg_names[i])
         # plotting styles
         if alg_names[i] == "RBF":
             alg_names[i] = "FBP"
@@ -64,11 +67,17 @@ def plot_results(res_dir, labels=None, tick_labels=None,
         else: line = "dashdot"
         if "FBP" in alg_names[i] or "fbp" in alg_names[i]:
             line = "dashdot"
-        lab = alg_names[i] if labels == None else labels[i]
+        lab = alg_names[i] if labels == None else labels[counter]
+        lab = None
+        curr_color = None
+        for label in labels:
+            if label[0] in alg_names[i]:
+                lab = label[0]
+                curr_color = label[1]
         # plot main mean trend of algorithm
         plt.plot(means, label=lab, 
                 linestyle=line,
-                linewidth=5)
+                linewidth=5, c=curr_color)
         # fill values between min/max
         plt.fill_between(range(len(means)), mins, maxs, alpha=0.2)
         # update control params
