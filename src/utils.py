@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def plot_results(res_dir, labels=None, tick_labels=None,
                 title=None, use_log=False, 
-                xlabel=None, ylabel=None, ylim=50,
+                xlabel=None, x_rotate=None, ylabel=None, ylim=50,
                 save_name=None):
     """ Creates a plot of the experiments, given the file structure:
             - res_path/
@@ -56,8 +56,6 @@ def plot_results(res_dir, labels=None, tick_labels=None,
             maxs = np.log(maxs)
             mins = np.log(mins)
         # plotting styles
-        if alg_names[i] == "RBF":
-            alg_names[i] = "FBP"
         if "DART" in alg_names[i]:
             line = "solid"
             if "sirt" in alg_names[i]:
@@ -67,13 +65,18 @@ def plot_results(res_dir, labels=None, tick_labels=None,
         else: line = "dashdot"
         if "FBP" in alg_names[i] or "fbp" in alg_names[i]:
             line = "dashdot"
-        lab = alg_names[i] if labels == None else labels[counter]
+        # choose label and color
         lab = None
         curr_color = None
         for label in labels:
             if label[0] in alg_names[i]:
                 lab = label[0]
                 curr_color = label[1]
+                # fix label names
+                if "RBF" in lab:
+                    lab = "FBP"
+                if "rbf" in lab:
+                    lab = "DART_fbp"
         # plot main mean trend of algorithm
         plt.plot(means, label=lab, 
                 linestyle=line,
@@ -88,7 +91,7 @@ def plot_results(res_dir, labels=None, tick_labels=None,
     plt.title(title, fontsize=18)
     plt.xlabel(xlabel, fontsize=16)
     plt.ylabel(ylabel, fontsize=16)
-    plt.xticks(ticks=range(len(means)) ,labels=tick_labels, fontsize=14)
+    plt.xticks(ticks=range(len(means)) ,labels=tick_labels, rotation=x_rotate, fontsize=14)
     plt.yticks( fontsize=14)
     if ylim:
         plt.ylim([0, ylim])

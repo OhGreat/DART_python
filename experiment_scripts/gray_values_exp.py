@@ -1,3 +1,4 @@
+import argparse
 import astra
 import random
 import numpy as np
@@ -5,6 +6,7 @@ from PIL import Image
 from os.path import exists
 from os import listdir, makedirs
 import sys
+import argparse
 sys.path.append("..")
 sys.path.append("../src")
 sys.path.append("../phantoms")
@@ -12,6 +14,18 @@ from src.algs import *
 from src.projections import *
 
 def main():
+    parser = argparse.ArgumentParser()
+    # 0: mixed approach, 1 overestimate, 2: underestimate
+    parser.add_argument('-type', action='store',
+                        dest='exp_name', type=int,
+                        default=0,
+                        help="Defines the type of the experiment.")
+    parser.add_argument('-exp_name', action='store',
+                        dest='exp_name', type=str,
+                        default='test_experiment',
+                        help="Defines the name of the experiment.")
+    args = parser.parse_args()
+
     # total iterations for comparison algorithms
     iters = 10000
     # dart parameters
@@ -23,9 +37,9 @@ def main():
     # define number of projections and angles
     n_projections = 50
     angle_range = 180
-    gray_val_noise = [0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14]
+    gray_val_noise = [0.02, 0.06, 0.1, 0.14, 0.18, 0.22, 0.26, 0.3, 0.34, 0.38, 0.4]
     base_in_dir = "../phantoms/"
-    base_out_dir = "../results/gray_levels/"
+    base_out_dir = f"../results/{args.exp_name}/"
 
     for curr_phantom in phantom_families:
         # input directory
@@ -57,11 +71,20 @@ def main():
                 # create noised gray values
                 phant_grays = np.unique(phantom).astype(np.float32)
                 phant_grays[phant_grays == 0] = 1
-                signs = np.array([1 if random.random() > 0.5 else -1 for _ in range(len(phant_grays))])
-                noised_gray = phant_grays + signs*phant_grays*noise_mul
-                noised_gray =noised_gray.clip(0,255)
+                # mixed overestimation and underestimation
+                if args.type == 0:
+                    signs = np.array([1 if random.random() > 0.5 else -1 for _ in range(len(phant_grays))])
+                    noised_gray = phant_grays + (1 + phant_grays)*signs*noise_mul
+                    noised_gray =noised_gray.clip(0,255.)
+                elif args.type == 1:
+                    # only overestimate
+                    noised_gray = phant_grays + (1 + phant_grays)*noise_mul
+                elif args.type == 2:
+                    # only underestimate
+                    noised_gray = phant_grays - (1 + phant_grays)*noise_mul
+                else:
+                    exit
                 print(f"~ current gray_values: {noised_gray}, original: {phant_grays} ~")
-                
                 n_proj, n_detectors, det_spacing = n_projections, 512, 1
                 vol_geom = astra.creators.create_vol_geom([img_width,img_height])
                 phantom_id = astra.data2d.create('-vol', vol_geom, data=phantom)
