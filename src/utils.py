@@ -87,11 +87,13 @@ def plot_results(res_dir, labels=None, tick_labels=None,
         curr_alg_errs = []
         counter += 1
 
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=12,frameon=True, fancybox=True, framealpha=1)
     plt.title(title, fontsize=18)
     plt.xlabel(xlabel, fontsize=16)
     plt.ylabel(ylabel, fontsize=16)
-    plt.xticks(ticks=range(len(means)) ,labels=tick_labels, rotation=x_rotate, fontsize=14)
+    plt.xticks(ticks=range(len(means)) ,
+                labels=tick_labels, rotation=x_rotate, 
+                fontsize=14)
     plt.yticks( fontsize=14)
     if ylim:
         plt.ylim([0, ylim])
