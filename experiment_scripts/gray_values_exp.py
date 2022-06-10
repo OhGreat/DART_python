@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     # 0: mixed approach, 1 overestimate, 2: underestimate
     parser.add_argument('-type', action='store',
-                        dest='exp_name', type=int,
+                        dest='type', type=int,
                         default=0,
                         help="Defines the type of the experiment.")
     parser.add_argument('-exp_name', action='store',
