@@ -61,7 +61,7 @@ def main():
                 n_proj, n_detectors, det_spacing = n_projections[i], 512, 1
                 vol_geom = astra.creators.create_vol_geom([img_width,img_height])
                 phantom_id = astra.data2d.create('-vol', vol_geom, data=phantom)
-                angles = np.linspace(0, angle_range[i], n_proj)
+                angles = np.linspace(0, np.pi*(angle_range[i]/180), n_proj)
                 projector_id, sino_id, sinogram = project_from_2D(phantom_id=phantom_id,
                                                                 vol_geom=vol_geom,
                                                                 n_projections=n_proj,
