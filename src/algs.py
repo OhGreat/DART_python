@@ -51,13 +51,14 @@ class DART():
             self.p = p
         if gray_levels is not None:
             self.gray_levels = gray_levels
+            self.thresholds = self.update_gray_thresholds()
         # reconstruction algorithm check
         if rec_alg not in [ "SART", "SART_CUDA",
                             "SIRT", "SIRT_CUDA",
                             "FBP" , "FBP_CUDA"]:
             exit("Select a valid reconstruction algorithm.") 
         # create initial reconstruction
-        curr_rec = self.run_rec_alg(np.full(shape=self.rec_shape,fill_value=0.),
+        curr_rec = self.ART(np.full(shape=self.rec_shape,fill_value=0.),
                                     mask=None, alg=rec_alg, iters=rec_iter)
         for i in range(iters):
             # segment current reconstructed image
@@ -73,13 +74,13 @@ class DART():
             # fixed pixels
             fixed_pixels = free_pixels == 0
             # take indexes of non fixed pixels
-            fixed_pixels_idx = np.where(fixed_pixels > 0)
+            fixed_pixels_idx = np.where(fixed_pixels)
             #create image to feed to reconstructor
             curr_rec[fixed_pixels_idx[0],
                      fixed_pixels_idx[1]] = segmented_img[fixed_pixels_idx[0],
                                                         fixed_pixels_idx[1]]
             # run reconstruction algorithm on free pixels
-            curr_rec = self.run_rec_alg(curr_rec, mask=free_pixels,
+            curr_rec = self.ART(curr_rec, mask=free_pixels,
                                         alg=rec_alg, iters=rec_iter)
             # smoothing operation except on last iteration
             if i < iters - 1:
@@ -89,7 +90,7 @@ class DART():
                                                             free_pixels_idx[1]]
         return curr_rec
 
-    def run_rec_alg(self, rec, mask=None,
+    def ART(self, rec, mask=None,
                     alg="SART_CUDA", iters= 5):
         """ Reconstruction with ARM techniques.
             Parameters:

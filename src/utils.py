@@ -3,7 +3,7 @@ from os import listdir
 import matplotlib.pyplot as plt
 
 def plot_results(res_dir, labels=None, tick_labels=None,
-                title=None, use_log=False, 
+                title=None, use_log=False, fig_size=(6,4),
                 xlabel=None, x_rotate=None, ylabel=None, ylim=50,
                 save_name=None):
     """ Creates a plot of the experiments, given the file structure:
@@ -26,7 +26,7 @@ def plot_results(res_dir, labels=None, tick_labels=None,
     n_algs = len(sorted(listdir(res_dir+family_subdirs[0])))
     
     # define figure
-    plt.figure(figsize=(8,6))
+    plt.figure(figsize=fig_size)
     
     counter = 0
     # iterate over each algorithm
