@@ -24,11 +24,17 @@ The DART algorithm alternates between continuous and discrete reconstruction ste
 
 
 ## Prerequisites
-`Python 3` and the following packages are required to use this library:
+An environment with `Python 3` >= 3.6 is required to use this library with the `astra-toolbox` installed.
+Astra-toolbox can be installed with anaconda with thwe following command:
+```python
+conda install -c astra-toolbox astra-toolbox
+```
+Or you can follow the instructions available <a href="https://www.astra-toolbox.com/">here</a>.
 
-- `numpy`
-- `Pillow`
-- `astra-toolbox` : documentation is available <a href="https://www.astra-toolbox.com/">here</a>.
+To install the DART pip package run the following command:
+```python
+pip install DART-OhGreat==0.0.3
+```
 
 ## Usage
 To run DART, data *(in the form of phantoms)* and measurements *(in the form of projections)* need to be artificially constructed. 
@@ -42,9 +48,9 @@ Usage of the framework for each of this tasks is described in detail in the foll
 ### Generating phantoms
 
 #### Semilunar phantoms
-To generate semilunar like phantoms you can use the `create_phantoms` function. It can be imported from `phantom_creator.py` and used as below:
+To generate semilunar like phantoms you can use the `create_phantoms` function. It can be imported from `phantoms.creator.py` and used as below:
 ```python
-from phantom_creator import create_phantoms
+from phantoms.creator import create_phantoms
 phantom_list = create_phantoms(phantoms="semilunars",img_size=512, gray_values=[255, 200, 150], n=3, overlap=False, seed=None, img_name="dir/to/save/filename")
 ``` 
 Parameters:
@@ -67,7 +73,7 @@ Output:
 To generate measurements in the form of 1D projections, the function `project_from_2D` has been created. You can import it and use it with the following commands:
 
 ```python
-from projections import project_from_2D
+from projections.project import project_from_2D
 proj_id, sino_id, sinogram = project_from_2D(phantom_id, vol_geom, n_projections, detector_spacing, apply_noise=False, save_dir=None, use_gpu=False)
 ```
 Parameters:
@@ -93,7 +99,7 @@ All the steps required to run the DART algorithm have been broken down and can b
 #### DART algorithm
 DART can be used in the following way:
 ```python
-from algs import DART
+from algorithms.DART import *
 # create DART instance
 dart = DART(gray_levels=[0, 40, 150], p=0.85, rec_shape=img.shape,
             proj_geom=proj_geom, projector_id=projector_id,
@@ -174,8 +180,10 @@ For the continous reconstruction step of DART, various algorithms have been impl
 
 The following example demostrates how to use SART:
 ```python
+from algorithms.SART import *
 sart_res_id, sart_res = SART(vol_geom, vol_data, projector_id, sino_id, iters, use_gpu=True)
 ```
+SIRT and FBP can be used similarly to the SART example above. 
 
 Parameters:
 - `vol_geom`: represents the volume geometry for the output.
