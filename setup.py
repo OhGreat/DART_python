@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="DART-OhGreat",
-    version="0.0.3",
+    version="0.0.4",
     author="Dimitrios Ieronymakis",
     author_email="dimitris.ieronymakis@gmail.com",
     description="A python implementation of the DART algorithm.",
@@ -26,7 +26,7 @@ setuptools.setup(
     install_requires=[
         "numpy>=1.21.5",
         "matplotlib>=3.5.0",
-        "Pillow >= 9.0.0",
+        "Pillow >= 9.1.1",
         "scipy >= 1.8.0",
     ],
 )

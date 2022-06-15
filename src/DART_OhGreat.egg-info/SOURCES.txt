@@ -12,6 +12,8 @@ src/algorithms/FBP.py
 src/algorithms/SART.py
 src/algorithms/SIRT.py
 src/algorithms/__init__.py
+src/dart_utils/__init__.py
+src/dart_utils/utils.py
 src/phantoms/__init__.py
 src/phantoms/creator.py
 src/projections/__init__.py
