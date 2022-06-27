@@ -27,7 +27,7 @@ This project was created as a practical assignment of the *Computational Imaging
 
 ## Prerequisites
 An environment with `Python 3` >= 3.6 is required to use this library with the `astra-toolbox` installed.
-Astra-toolbox can be installed with anaconda with thwe following command:
+Astra-toolbox can be installed with anaconda with the following command:
 ```python
 conda install -c astra-toolbox astra-toolbox
 ```
