@@ -207,9 +207,11 @@ Output:
 Examples on how to use the repository are available in the notebook examples under the `notebook_examples` directory. To run experiments on various algorithms and measurement configurations you can check the examples in the `experiment_scripts` directory.
 
 The following reconstruction is a sample of the experiments carried out to in the report attached in the repository. The experiment consisted in comparing the performance of DART, SART and SIRT algorithms for 12 projections and an angular range of 120 degrees. For a fair comparison, all algorithms were run for the same number of reconstruction steps. Specifically, DART was run for 50 iterations and 1000 SART subrutines for each iteration, while SART and SIRT were run for 50.000 iterations. As we can see from the images, DART achieves a better reconstruction than the compared algorithms both in their raw output and the segmented one.
+
 <img src="https://github.com/OhGreat/DART_python/blob/main/report_images/alien_rec_low_proj.png" />
 
 The following experiment was made under the assumption of limited number of projections. In total 8 projections were used with an angle range of 180 degrees. The same number of iterations as above was used for this experiment. The results again show that DART achieves superior reconstructions.
+
 <img src="https://github.com/OhGreat/DART_python/blob/main/report_images/paw_low_proj.png" />
 
 ## Issues
