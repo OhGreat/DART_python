@@ -3,6 +3,8 @@ DART is an iterative reconstruction algorithm for discrete tomography. The origi
 What this repository consists of, is an implementation of the DART algorithm together with a framework to generate phantoms and measurements, to test the algorithm itself.<br/>
 The DART algorithm alternates between continuous and discrete reconstruction steps. For the continuous step, many reconstruction algorithms were implemented with **astra-toolbox**. Publications relevant to this library can be found in <a href="#astra_1">[2]</a>, <a href="#astra_2">[3]</a> and <a href="#astra_3">[4]</a>. For the original publication of SART, which is the main reconstruction algorithm presented in the original DART publication, you can refer to <a href="#SART">[5]</a>.
 
+This project was created as a practical assignment of the *Computational Imaging and Tomography* course at Leiden University 2021/22. The submitted report of our experiments can be found <a href="https://github.com/OhGreat/DART_python/blob/main/DART_experimentation_report.pdf">here</a>.<br/>
+
 
 <!-- TABLE OF CONTENTS -->
 <details id="test">
@@ -203,6 +205,12 @@ Output:
 
 ## Examples and Results
 Examples on how to use the repository are available in the notebook examples under the `notebook_examples` directory. To run experiments on various algorithms and measurement configurations you can check the examples in the `experiment_scripts` directory.
+
+The following reconstruction is a sample of the experiments carried out to in the report attached in the repository. The experiment consisted in comparing the performance of DART, SART and SIRT algorithms for 12 projections and an angular range of 120 degrees. For a fair comparison, all algorithms were run for the same number of reconstruction steps. Specifically, DART was run for 50 iterations and 1000 SART subrutines for each iteration, while SART and SIRT were run for 50.000 iterations. As we can see from the images, DART achieves a better reconstruction than the compared algorithms both in their raw output and the segmented one.
+<img src="https://github.com/OhGreat/DART_python/blob/main/report_images/alien_rec_low_proj.png" />
+
+The following experiment was made under the assumption of limited number of projections. In total 8 projections were used with an angle range of 180 degrees. The same number of iterations as above was used for this experiment. The results again show that DART achieves superior reconstructions.
+<img src="https://github.com/OhGreat/DART_python/blob/main/report_images/paw_low_proj.png" />
 
 ## Issues
 If you encounter any problems while using the framework you can notify us by opening an issue here: https://github.com/OhGreat/DART_python/issues
