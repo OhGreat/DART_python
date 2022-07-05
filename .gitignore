@@ -7,3 +7,4 @@ src/phantom_generator/__pycache__
 src/projections_generator/__pycache__
 reconstruction
 dataset
+dist

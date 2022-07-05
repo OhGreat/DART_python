@@ -1,3 +1,31 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "DART-OhGreat"
+version = "0.0.5"
+authors = [
+  { name="Dimitrios Ieronymakis", email="ieronymakis.dim@protonmail.com" },
+]
+description = "A python implementation of the DART algorithm."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+
+dependencies=[
+        "numpy>=1.22.0",
+        "matplotlib>=3.5.0",
+        "Pillow >= 9.1.1",
+        "scipy >= 1.8.0",
+    ]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/OhGreat/DART_python"
+"Bug Tracker" = "https://github.com/OhGreat/DART_python/issues"

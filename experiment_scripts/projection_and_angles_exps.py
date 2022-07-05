@@ -6,11 +6,11 @@ from os import listdir, makedirs
 import sys
 sys.path.append("..")
 sys.path.append("../src")
-from src.algorithms.DART import *
-from src.algorithms.SART import *
-from src.algorithms.SIRT import *
-from src.algorithms.FBP import *
-from src.projections.project import *
+from src.algorithms_OhGreat.DART import *
+from src.algorithms_OhGreat.SART import *
+from src.algorithms_OhGreat.SIRT import *
+from src.algorithms_OhGreat.FBP import *
+from src.projections_OhGreat.project import *
 
 def main():
     # total iterations for comparison algorithms

@@ -145,7 +145,11 @@ class DART():
 
     def segment(self, img):
         """ Segments the input image to obtain an image with
-            only the gray values specified. 
+            only the gray values specified.
+            Parameters:
+                - img: (np.array) containing the image to segment
+            Returns:
+                - segmented_img: (np.array) of segmented image.
         """
         # compute segmentation
         segmented_img = np.full(img.shape, 0, dtype=np.uint8)
@@ -156,6 +160,10 @@ class DART():
 
     def pixel_neighborhood(self, img_shape, x, y):
         """ Returns an array containing all the neighbours of the given pixel
+            Parameters:
+                - x, y: (int) pixel coordinates to calculate boundaries for.
+            Returns:
+                - neighbours: (list) list of touples containing the neighbours coordinates.
         """
         # calculate all possible neighbours
         # related to the x,y coordinates
@@ -173,6 +181,9 @@ class DART():
 
             Parameters:
                 - img: define the input image as a numpy array
+            Returns:
+                - bool_mask: (np.array) boolean matrix representing the 
+                    mask of boundary pixels.
         """
         # initialize output mask to 0
         bool_mask = np.full(fill_value=False, shape=img.shape[:2], dtype=np.bool8)
@@ -190,11 +201,12 @@ class DART():
         """ Computes the free pixels of the image.
             
             Parameters:
-                - rec_shape: shape of the image for which 
-                    to calculate the free pixels 
-
-                - p: probability that a pixel is not sampled 
-                    as a non boundary free pixel
+                - None. The mask is calculated with respect to
+                    the reconstruction shape of the image (rec_shape)
+                    passed in the __init__ method.
+            Returns:
+                - free_pixels: (np.array) matrix of the defined rec_shape
+                    containing the mask of free pixels.
         """
         free_pixels = np.random.choice(a=self.c, 
                                     size=self.rec_shape, 

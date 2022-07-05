@@ -33,7 +33,7 @@ Or you can follow the instructions available <a href="https://www.astra-toolbox.
 
 To install the DART pip package run the following command:
 ```python
-pip install DART-OhGreat==0.0.4
+pip install DART-OhGreat
 ```
 
 ## Usage

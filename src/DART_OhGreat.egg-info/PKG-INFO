@@ -1,10 +1,9 @@
 Metadata-Version: 2.1
 Name: DART-OhGreat
-Version: 0.0.4
+Version: 0.0.5
 Summary: A python implementation of the DART algorithm.
-Home-page: https://github.com/OhGreat/DART_python
-Author: Dimitrios Ieronymakis
-Author-email: dimitris.ieronymakis@gmail.com
+Author-email: Dimitrios Ieronymakis <ieronymakis.dim@protonmail.com>
+Project-URL: Homepage, https://github.com/OhGreat/DART_python
 Project-URL: Bug Tracker, https://github.com/OhGreat/DART_python/issues
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -48,7 +47,7 @@ Or you can follow the instructions available <a href="https://www.astra-toolbox.
 
 To install the DART pip package run the following command:
 ```python
-pip install DART-OhGreat==0.0.5
+pip install DART-OhGreat
 ```
 
 ## Usage
